@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Créer un compte — ATHAR</title>
+  <meta name="description" content="Choisissez votre type de compte ATHAR : coopérative, client, chercheur d'emploi, ou continuez en visiteur. Démonstration frontend.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="inscription" data-lang-mode="soft">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="section">
+      <div class="container" style="max-width:1000px">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="ins.eyebrow">Rejoindre ATHAR</span>
+          <h1 style="font-size:clamp(2rem,4vw,3rem)" data-i18n="ins.h1">Créer un compte</h1>
+          <p data-i18n="ins.lead">Choisissez le type de compte qui vous correspond, ou continuez simplement en visiteur.</p>
+        </div>
+        <p class="notice mb-2"><strong data-i18n="ins.demo">Démonstration frontend :</strong> <span data-i18n="ins.demo.text">aucun compte réel n'est créé, il n'y a ni serveur ni connexion sécurisée. Le mot de passe est seulement vérifié dans la page puis abandonné ; il n'est jamais enregistré.</span></p>
+
+        <!-- Step 1: choose -->
+        <div id="role-chooser">
+          <div class="role-grid" role="group" data-i18n-attr="aria-label:ins.choose.aria" aria-label="Types de compte">
+            <button type="button" class="role-card" data-role="coop">
+              <span class="role-card__icon" data-icon="store"></span>
+              <strong data-i18n="ins.role.coop">Compte Coopérative</strong>
+              <span class="muted" data-i18n="ins.role.coop.x">Présentez votre coopérative et vos savoir-faire.</span>
+              <span class="role-card__cta"><span data-i18n="ins.role.cta">Choisir</span><span data-icon="arrowRight"></span></span>
+            </button>
+            <button type="button" class="role-card" data-role="client">
+              <span class="role-card__icon" data-icon="bag"></span>
+              <strong data-i18n="ins.role.client">Compte Client</strong>
+              <span class="muted" data-i18n="ins.role.client.x">Sauvegardez vos favoris et suivez vos commandes.</span>
+              <span class="role-card__cta"><span data-i18n="ins.role.cta">Choisir</span><span data-icon="arrowRight"></span></span>
+            </button>
+            <button type="button" class="role-card" data-role="job">
+              <span class="role-card__icon" data-icon="briefcase"></span>
+              <strong data-i18n="ins.role.job">Compte Chercheur d'emploi</strong>
+              <span class="muted" data-i18n="ins.role.job.x">Indiquez vos compétences et votre région souhaitée.</span>
+              <span class="role-card__cta"><span data-i18n="ins.role.cta">Choisir</span><span data-icon="arrowRight"></span></span>
+            </button>
+            <a class="role-card role-card--visitor" href="index.html" id="visitor-link">
+              <span class="role-card__icon" data-icon="userCircle"></span>
+              <strong data-i18n="ins.role.visitor">Continuer en tant que visiteur</strong>
+              <span class="muted" data-i18n="ins.role.visitor.x">Parcourez le site sans créer de compte.</span>
+              <span class="role-card__cta"><span data-i18n="ins.role.visitor.cta">Explorer le site</span><span data-icon="arrowRight"></span></span>
+            </a>
+          </div>
+        </div>
+
+        <!-- Step 2: one form per role (built from shared blocks by js/inscription.js) -->
+        <div id="role-forms" hidden>
+          <button type="button" class="btn btn--outline btn--sm mb-2" id="role-back"><span data-icon="arrowLeft"></span><span data-i18n="ins.back">Changer de type de compte</span></button>
+
+          <form class="form-card reg-form" id="form-coop" data-role-form="coop" novalidate hidden>
+            <h2 data-i18n="ins.form.coop.t">Inscription d'une coopérative</h2>
+            <p class="muted" data-i18n="ins.required.note">Les champs marqués d'une étoile (*) sont obligatoires.</p>
+            <div class="form-alert" role="alert" hidden></div>
+            <div class="form-row">
+              <label for="coop-name"><span data-i18n="ins.f.coopname">Nom de la coopérative</span> *</label>
+              <input id="coop-name" name="name" type="text" autocomplete="organization" maxlength="80" required>
+              <div class="field-error"></div>
+            </div>
+            <div data-slot="photo" data-prefix="coop" data-label="ins.f.logo" data-required="0"></div>
+            <div data-slot="email" data-prefix="coop"></div>
+            <div data-slot="password" data-prefix="coop"></div>
+            <div class="form-row">
+              <label for="coop-whatsapp"><span data-i18n="ins.f.whatsapp">Numéro WhatsApp</span> *</label>
+              <input id="coop-whatsapp" name="whatsapp" type="tel" inputmode="tel" autocomplete="tel" placeholder="+212 6 00 00 00 00" required aria-describedby="coop-whatsapp-hint">
+              <div class="muted form-hint" id="coop-whatsapp-hint" data-i18n="ins.f.whatsapp.hint">Obligatoire. Format international, par exemple +212 6 00 00 00 00.</div>
+              <div class="field-error"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label for="coop-city"><span data-i18n="ins.f.city">Ville ou région du Sahara</span> *</label>
+                <select id="coop-city" name="city" required data-fill="regions"></select>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-row">
+                <label for="coop-category"><span data-i18n="ins.f.category">Catégorie d'activité</span> *</label>
+                <select id="coop-category" name="category" required data-fill="categories"></select>
+                <div class="field-error"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <label for="coop-desc"><span data-i18n="ins.f.desc">Description de la coopérative</span> *</label>
+              <textarea id="coop-desc" name="description" maxlength="600" data-i18n-attr="placeholder:ins.f.desc.ph" required></textarea>
+              <div class="muted form-hint" id="coop-desc-count"></div>
+              <div class="field-error"></div>
+            </div>
+            <div data-slot="terms" data-prefix="coop"></div>
+            <button class="btn btn--primary" type="submit"><span data-i18n="ins.submit">Valider l'inscription (démo)</span></button>
+          </form>
+
+          <form class="form-card reg-form" id="form-client" data-role-form="client" novalidate hidden>
+            <h2 data-i18n="ins.form.client.t">Inscription client</h2>
+            <p class="muted" data-i18n="ins.required.note">Les champs marqués d'une étoile (*) sont obligatoires.</p>
+            <div class="form-alert" role="alert" hidden></div>
+            <div data-slot="photo" data-prefix="client" data-label="ins.f.photo" data-required="0"></div>
+            <div data-slot="email" data-prefix="client"></div>
+            <div data-slot="password" data-prefix="client"></div>
+            <div data-slot="terms" data-prefix="client"></div>
+            <button class="btn btn--primary" type="submit"><span data-i18n="ins.submit">Valider l'inscription (démo)</span></button>
+          </form>
+
+          <form class="form-card reg-form" id="form-job" data-role-form="job" novalidate hidden>
+            <h2 data-i18n="ins.form.job.t">Inscription chercheur d'emploi</h2>
+            <p class="muted" data-i18n="ins.required.note">Les champs marqués d'une étoile (*) sont obligatoires.</p>
+            <div class="form-alert" role="alert" hidden></div>
+            <div data-slot="photo" data-prefix="job" data-label="ins.f.photo" data-required="0"></div>
+            <div data-slot="email" data-prefix="job"></div>
+            <div data-slot="password" data-prefix="job"></div>
+            <div class="form-row">
+              <label for="job-skills"><span data-i18n="ins.f.skills">Compétences</span> *</label>
+              <input id="job-skills" name="skills" type="text" maxlength="160" data-i18n-attr="placeholder:ins.f.skills.ph" required>
+              <div class="field-error"></div>
+            </div>
+            <div class="form-grid">
+              <div class="form-row">
+                <label for="job-region"><span data-i18n="ins.f.region.pref">Région du Sahara souhaitée</span> *</label>
+                <select id="job-region" name="region" required data-fill="regions" data-any="1"></select>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-row">
+                <label for="job-exp"><span data-i18n="ins.f.exp">Niveau d'expérience</span> *</label>
+                <select id="job-exp" name="exp" required data-fill="experience"></select>
+                <div class="field-error"></div>
+              </div>
+            </div>
+            <div class="form-row">
+              <fieldset class="chips-field" id="job-interests" aria-describedby="job-interests-hint">
+                <legend><span data-i18n="ins.f.interests">Domaines professionnels souhaités</span> *</legend>
+                <div class="chips" data-fill="interests"></div>
+                <div class="muted form-hint" id="job-interests-hint" data-i18n="ins.f.interests.hint">Choisissez au moins un domaine.</div>
+                <div class="field-error"></div>
+              </fieldset>
+            </div>
+            <div class="form-row">
+              <label for="job-exp-detail"><span data-i18n="ins.f.exp.detail">Votre expérience</span> <span class="muted" data-i18n="ins.f.optional">(facultatif)</span></label>
+              <textarea id="job-exp-detail" name="expDetail" maxlength="600" data-i18n-attr="placeholder:ins.f.exp.ph"></textarea>
+              <div class="field-error"></div>
+            </div>
+            <div data-slot="terms" data-prefix="job"></div>
+            <button class="btn btn--primary" type="submit"><span data-i18n="ins.submit">Valider l'inscription (démo)</span></button>
+          </form>
+        </div>
+
+        <!-- Step 3: demo confirmation -->
+        <div id="role-done" hidden></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/crafts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/regions-i18n.js"></script>
+  <script src="js/inscription-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/inscription.js"></script>
+</body>
+</html>

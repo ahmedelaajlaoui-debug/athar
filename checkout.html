@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Commande — ATHAR</title>
+  <meta name="description" content="Finalisez votre commande de démonstration.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="checkout">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow">Étape finale</span>
+          <h1 style="font-size:clamp(2rem,4vw,3rem)">Votre commande</h1>
+        </div>
+        <p class="notice mb-2"><strong>Démonstration :</strong> aucun paiement n'est traité et aucune carte bancaire n'est demandée. La commande est seulement enregistrée dans votre navigateur.</p>
+
+        <!-- Shown when the cart is empty -->
+        <div class="empty-state hidden" id="checkout-empty">
+          <span class="icon-lg" data-icon="cart"></span>
+          <h2>Votre panier est vide</h2>
+          <p>Ajoutez des produits avant de passer commande.</p>
+          <a class="btn btn--primary" href="boutique.html">Découvrir la boutique</a>
+        </div>
+
+        <div class="cart-layout" id="checkout-layout">
+          <form id="checkout-form" novalidate>
+            <div class="form-card mb-2">
+              <h2 style="font-size:1.5rem">1. Vos coordonnées</h2>
+              <div class="form-grid">
+                <div class="form-row"><label for="c-name">Nom complet *</label><input id="c-name" name="name" type="text" autocomplete="name"><div class="field-error"></div></div>
+                <div class="form-row"><label for="c-phone">Téléphone *</label><input id="c-phone" name="phone" type="tel" placeholder="06 12 34 56 78" autocomplete="tel"><div class="field-error"></div></div>
+              </div>
+              <div class="form-row"><label for="c-email">Email *</label><input id="c-email" name="email" type="email" autocomplete="email"><div class="field-error"></div></div>
+            </div>
+
+            <div class="form-card mb-2">
+              <h2 style="font-size:1.5rem">2. Adresse de livraison</h2>
+              <div class="form-row"><label for="c-address">Adresse *</label><input id="c-address" name="address" type="text" autocomplete="street-address"><div class="field-error"></div></div>
+              <div class="form-grid">
+                <div class="form-row"><label for="c-city">Ville *</label><select id="c-city" name="city"></select><div class="field-error"></div></div>
+                <div class="form-row"><label for="c-zip">Code postal</label><input id="c-zip" name="zip" type="text" inputmode="numeric" autocomplete="postal-code"><div class="field-error"></div></div>
+              </div>
+            </div>
+
+            <div class="form-card mb-2">
+              <h2 style="font-size:1.5rem">3. Mode de livraison</h2>
+              <label class="radio-card"><input type="radio" name="shipping" value="pooled" checked><span><strong>Livraison mutualisée</strong><small id="ship-pooled-info"></small></span></label>
+              <label class="radio-card"><input type="radio" name="shipping" value="express"><span><strong>Livraison express</strong><small id="ship-express-info"></small></span></label>
+              <p class="muted" style="font-size:.82rem">Prix et délais illustratifs.</p>
+            </div>
+
+            <div class="form-card">
+              <h2 style="font-size:1.5rem">4. Paiement</h2>
+              <div class="info-box">Aucun paiement réel. À la place, la démo simule un « paiement à la livraison ». Ne saisissez jamais de coordonnées bancaires ici.</div>
+              <button class="btn btn--primary btn--block mt-1" type="submit">Confirmer la commande (démo)</button>
+            </div>
+          </form>
+
+          <aside class="summary">
+            <h2 style="font-size:1.5rem">Résumé</h2>
+            <div id="checkout-items"></div>
+            <div class="price-line"><span>Sous-total</span><span id="sum-subtotal"></span></div>
+            <div class="price-line"><span>Livraison</span><span id="sum-shipping"></span></div>
+            <div class="price-line price-line--total"><span>Total</span><span id="sum-total"></span></div>
+          </aside>
+        </div>
+
+        <!-- Confirmation screen -->
+        <div class="confirmation hidden" id="order-confirmation" role="status">
+          <div class="check-big" data-icon="check"></div>
+          <h2>Commande de démonstration confirmée</h2>
+          <p id="order-summary"></p>
+          <p class="notice">Aucun paiement n'a été effectué et aucun colis ne sera expédié.</p>
+          <a class="btn btn--primary mt-1" href="profil.html">Voir mes commandes</a>
+          <a class="btn btn--outline mt-1" href="boutique.html">Continuer mes achats</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/checkout.js"></script>
+</body>
+</html>

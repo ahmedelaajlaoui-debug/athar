@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Offres d'emploi — ATHAR</title>
+  <meta name="description" content="Offres d'emploi de démonstration publiées par des coopératives du Sahara marocain.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="emploi">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero hero--small" data-bg="market">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0" data-i18n="jb.eyebrow">Emploi</span>
+          <h1 data-i18n="jb.h1">Offres d'emploi des coopératives du Sahara</h1>
+          <p data-i18n="jb.lead">Les coopératives de démonstration publient ici leurs offres. Les annonces de cette page sont des exemples fictifs.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div id="job-detail" hidden></div>
+        <div id="job-list-view">
+        <p class="notice" data-i18n="jb.notice"></p>
+
+        <div class="job-filters mt-2" role="search">
+          <div class="form-row">
+            <label for="jb-q" data-i18n="jb.search">Rechercher une offre</label>
+            <input id="jb-q" type="search" data-i18n-attr="placeholder:jb.search.ph">
+          </div>
+          <div class="form-row">
+            <label for="jb-f-region" data-i18n="co.j.region">Région du Sahara</label>
+            <select id="jb-f-region"></select>
+          </div>
+          <div class="form-row">
+            <label for="jb-f-cat" data-i18n="co.j.cat">Domaine d'activité</label>
+            <select id="jb-f-cat"></select>
+          </div>
+        </div>
+
+        <div class="match-row" id="jb-match-row" hidden>
+          <label class="chip-check"><input type="checkbox" id="jb-match"><span data-i18n="ac.jb.match">Seulement les offres qui correspondent à mon profil</span></label>
+          <span class="muted form-hint" data-i18n="ac.jb.match.hint"></span>
+          <a class="link-btn" href="profil.html#prefs" data-i18n="ac.jb.match.edit">Modifier mon profil</a>
+        </div>
+
+        <p class="muted" id="jb-count" role="status" aria-live="polite"></p>
+        <div class="grid grid--2" id="job-grid"></div>
+
+        <div class="form-card mt-3 job-cta" id="job-cta">
+          <div>
+            <h3 data-i18n="jb.coopcta.t">Vous représentez une coopérative ?</h3>
+            <p class="muted" data-i18n="jb.coopcta.x"></p>
+          </div>
+          <a class="btn btn--primary" href="cooperative.html#jobs"><span data-icon="store"></span><span data-i18n="jb.coopcta.btn">Ouvrir l'espace coopérative</span></a>
+        </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/crafts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/regions-i18n.js"></script>
+  <script src="js/inscription-i18n.js"></script>
+  <script src="js/coop-i18n.js"></script>
+  <script src="js/account-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/emploi.js"></script>
+</body>
+</html>

@@ -1,0 +1,68 @@
+[
+  {
+    "coopId": "COOP_01",
+    "name": "Sahara Artisans",
+    "managerName": "Ahmed",
+    "phone": "212640603618",
+    "altPhone": "4003010207755",
+    "city": "Laâyoune",
+    "region": "Laâyoune-Sakia El Hamra",
+    "specialty": "Cuir et bijoux traditionnels",
+    "createdAt": "2026-01-15T10:00:00.000Z"
+  },
+  {
+    "coopId": "COOP_02",
+    "name": "Coopérative Al Loubna",
+    "managerName": "Loubna",
+    "phone": "212665754652",
+    "altPhone": "5450699383036",
+    "city": "Marrakech",
+    "region": "Marrakech-Safi",
+    "specialty": "Argan et cosmétiques bio",
+    "createdAt": "2026-02-01T11:30:00.000Z"
+  },
+  {
+    "coopId": "COOP_03",
+    "name": "Coopérative Wafa",
+    "managerName": "Wafa",
+    "phone": "212658709673",
+    "altPhone": "139126976311398",
+    "city": "Taroudant",
+    "region": "Souss-Massa",
+    "specialty": "Broderie et tissage",
+    "createdAt": "2026-03-10T09:15:00.000Z"
+  },
+  {
+    "coopId": "COOP_04",
+    "name": "Coopérative Sara",
+    "managerName": "Sara",
+    "phone": "212656682634",
+    "altPhone": "117476398469215",
+    "city": "Casablanca",
+    "region": "Casablanca-Settat",
+    "specialty": "Maroquinerie",
+    "createdAt": "2026-10-11T10:00:00.000Z"
+  },
+  {
+    "coopId": "COOP_05",
+    "name": "Coopérative Aymen",
+    "managerName": "Aymen",
+    "phone": "160271100293227",
+    "altPhone":"16",
+    "city": "Rabat",
+    "region": "Rabat-Salé-Kénitra",
+    "specialty": "Tapis rbati",
+    "createdAt": "2026-10-11T10:05:00.000Z"
+  },
+  {
+    "coopId": "COOP_06",
+    "name": "Coopérative ",
+    "managerName": "Choukri",
+    "phone": "212611325322",
+    "altPhone": "185298478706709",
+    "city": "El kelâa des Sraghna",
+    "region": "Fès-Meknès",
+    "specialty": "Poterie",
+    "createdAt": "2026-10-11T10:10:00.000Z"
+  }
+]

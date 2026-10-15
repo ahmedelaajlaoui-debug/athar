@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Boutique — ATHAR</title>
+  <meta name="description" content="Créations artisanales du Sahara : bijoux, tapis, cuir, melhfa et bakhour.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="boutique">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero hero--small" data-bg="morocco">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0">Boutique</span>
+          <h1>Des créations authentiques, faites main.</h1>
+          <p>Chaque pièce est présentée avec son artisan, son origine et son histoire.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <!-- Search + categories -->
+        <div class="toolbar">
+          <div style="flex:1;min-width:240px">
+            <label class="sr-only" for="shop-search">Rechercher un produit</label>
+            <input id="shop-search" type="search" placeholder="Rechercher un produit, un artisan, une ville…">
+          </div>
+          <div class="chip-row" id="category-chips" role="group" aria-label="Catégories"></div>
+        </div>
+
+        <div class="shop-layout">
+          <!-- Filters -->
+          <aside class="filters" aria-label="Filtres">
+            <h3>Filtres</h3>
+            <div class="filter-group">
+              <label for="filter-price">Prix maximum : <span id="price-label"></span></label>
+              <input id="filter-price" type="range" min="100" max="1500" step="50" value="1500">
+            </div>
+            <div class="filter-group">
+              <label for="filter-dest">Destination</label>
+              <select id="filter-dest"><option value="">Toutes</option></select>
+            </div>
+            <fieldset class="filter-group" style="border:none;padding:0;margin:0 0 1.2rem">
+              <legend style="font-weight:600;font-size:.9rem;margin-bottom:.4rem">Type d'artisanat</legend>
+              <div id="craft-types"></div>
+            </fieldset>
+            <div class="filter-group">
+              <label class="check"><input type="checkbox" id="filter-verified"> Coopératives vérifiées</label>
+              <label class="check"><input type="checkbox" id="filter-stock"> En stock uniquement</label>
+            </div>
+            <button class="btn btn--outline btn--block btn--sm" type="button" id="reset-filters">Réinitialiser</button>
+          </aside>
+
+          <!-- Results -->
+          <div>
+            <div class="toolbar">
+              <p class="muted" id="result-count" aria-live="polite"></p>
+              <div>
+                <label class="sr-only" for="sort-select">Trier par</label>
+                <select id="sort-select">
+                  <option value="pop">Plus populaires</option>
+                  <option value="asc">Prix croissant</option>
+                  <option value="desc">Prix décroissant</option>
+                </select>
+              </div>
+            </div>
+            <div class="grid grid--3" id="product-grid"></div>
+            <div class="text-center mt-2"><button class="btn btn--primary" type="button" id="load-more">Voir plus de produits</button></div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/boutique.js"></script>
+</body>
+</html>

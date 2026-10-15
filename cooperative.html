@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Espace coopérative — ATHAR</title>
+  <meta name="description" content="Tableau de bord de démonstration : profil, produits et offres d'emploi d'une coopérative du Sahara marocain.">
+  <meta name="robots" content="noindex">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="cooperative" data-lang-mode="soft">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero hero--small" data-bg="workshop">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0" data-i18n="co.eyebrow">Espace coopérative</span>
+          <h1 data-i18n="co.h1">Tableau de bord de la coopérative</h1>
+          <p data-i18n="co.lead">Gérez le profil, les produits et les offres d'emploi de votre coopérative de démonstration.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <p class="notice"><strong data-i18n="co.demo">Démonstration frontend :</strong> <span data-i18n="co.demo.text"></span></p>
+
+        <!-- No cooperative demo account yet -->
+        <div id="co-gate" class="mt-2" hidden></div>
+
+        <!-- Dashboard -->
+        <div id="co-app" class="mt-2" hidden>
+          <div class="co-head">
+            <div class="co-head__logo" id="co-logo" aria-hidden="true"></div>
+            <div class="co-head__info">
+              <h2 id="co-name"></h2>
+              <p class="muted" id="co-meta"></p>
+              <span class="tag tag--terra" data-i18n="co.badge">Compte de démonstration</span>
+            </div>
+            <div class="co-stats">
+              <div><strong id="stat-products">0</strong><span data-i18n="co.stat.products">Produits</span></div>
+              <div><strong id="stat-jobs">0</strong><span data-i18n="co.stat.jobs">Offres d'emploi</span></div>
+            </div>
+          </div>
+
+          <div class="form-alert" id="co-incomplete" role="status" hidden></div>
+
+          <div class="tabs" role="tablist" id="co-tabs" data-i18n-attr="aria-label:co.tabs.aria">
+            <button class="tab" type="button" role="tab" id="tab-profile" data-tab="profile" aria-controls="panel-profile"><span data-i18n="co.tab.profile">Profil</span></button>
+            <button class="tab" type="button" role="tab" id="tab-products" data-tab="products" aria-controls="panel-products"><span data-i18n="co.tab.products">Mes produits</span></button>
+            <button class="tab" type="button" role="tab" id="tab-jobs" data-tab="jobs" aria-controls="panel-jobs"><span data-i18n="co.tab.jobs">Mes offres d'emploi</span></button>
+          </div>
+
+          <!-- PROFILE -->
+          <section id="panel-profile" role="tabpanel" aria-labelledby="tab-profile" tabindex="0">
+            <form class="form-card" id="form-profile" novalidate>
+              <h3 data-i18n="co.p.title">Profil de la coopérative</h3>
+              <p class="muted" data-i18n="co.p.public"></p>
+              <p class="muted form-hint" data-i18n="co.p.fake"></p>
+              <p class="muted" data-i18n="ins.required.note">Les champs marqués d'une étoile (*) sont obligatoires.</p>
+              <div class="form-alert" role="alert" hidden></div>
+
+              <div class="form-row">
+                <label for="cp-name"><span data-i18n="ins.f.coopname">Nom de la coopérative</span> *</label>
+                <input id="cp-name" name="name" type="text" maxlength="80" autocomplete="organization" required>
+                <div class="field-error"></div>
+              </div>
+
+              <div class="form-row photo-field" data-img="logo">
+                <span class="label-like" id="cp-logo-label"><span data-i18n="ins.f.logo">Logo ou photo de la coopérative</span> <span class="muted" data-i18n="ins.f.optional">(facultatif)</span></span>
+                <div class="photo-field__body">
+                  <div class="photo-field__preview" aria-hidden="true"><span data-icon="userCircle"></span><img alt="" hidden></div>
+                  <div>
+                    <input class="sr-only" id="cp-logo" name="logo" type="file" accept="image/jpeg,image/png,image/webp" data-img-input aria-labelledby="cp-logo-label">
+                    <label class="btn btn--outline btn--sm" for="cp-logo"><span data-icon="upload"></span><span data-i18n="ins.f.photo.choose">Choisir une image</span></label>
+                    <button class="link-btn" type="button" data-img-remove hidden data-i18n="ins.f.photo.remove">Retirer</button>
+                    <div class="muted form-hint" data-i18n="co.pr.image.hint"></div>
+                  </div>
+                </div>
+                <div class="field-error"></div>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-row">
+                  <label for="cp-email"><span data-i18n="ins.f.email">Adresse email</span> *</label>
+                  <input id="cp-email" name="email" type="email" maxlength="120" autocomplete="email" required>
+                  <div class="field-error"></div>
+                </div>
+                <div class="form-row">
+                  <label for="cp-whatsapp"><span data-i18n="ins.f.whatsapp">Numéro WhatsApp</span> *</label>
+                  <input id="cp-whatsapp" name="whatsapp" type="tel" inputmode="tel" maxlength="24" autocomplete="tel" placeholder="+212 6 00 00 00 00" required>
+                  <div class="field-error"></div>
+                </div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row">
+                  <label for="cp-region"><span data-i18n="co.f.region">Région du Sahara</span> *</label>
+                  <select id="cp-region" name="region" required data-fill="regions"></select>
+                  <div class="field-error"></div>
+                </div>
+                <div class="form-row">
+                  <label for="cp-category"><span data-i18n="ins.f.category">Catégorie d'activité</span> *</label>
+                  <select id="cp-category" name="category" required data-fill="categories-other"></select>
+                  <div class="field-error"></div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="cp-desc"><span data-i18n="ins.f.desc">Description de la coopérative</span> *</label>
+                <textarea id="cp-desc" name="description" maxlength="600" data-i18n-attr="placeholder:ins.f.desc.ph" required></textarea>
+                <div class="muted form-hint" id="cp-desc-count"></div>
+                <div class="field-error"></div>
+              </div>
+              <button class="btn btn--primary" type="submit"><span data-icon="check"></span><span data-i18n="co.p.save">Enregistrer le profil</span></button>
+            </form>
+          </section>
+
+          <!-- PRODUCTS -->
+          <section id="panel-products" role="tabpanel" aria-labelledby="tab-products" tabindex="0" hidden>
+            <div class="section-head section-head--row">
+              <div><h3 data-i18n="co.pr.title">Mes produits de démonstration</h3></div>
+              <div class="co-toolbar">
+                <a class="btn btn--outline btn--sm" id="pr-shop-link" href="boutique.html"><span data-icon="store"></span><span data-i18n="co.pr.view">Voir dans la boutique</span></a>
+                <button class="btn btn--primary btn--sm" type="button" id="pr-add"><span data-icon="plus"></span><span data-i18n="co.pr.add">Ajouter un produit</span></button>
+              </div>
+            </div>
+
+            <form class="form-card co-form" id="form-product" novalidate hidden>
+              <h3 id="pr-form-title"></h3>
+              <p class="muted" data-i18n="ins.required.note">Les champs marqués d'une étoile (*) sont obligatoires.</p>
+              <div class="form-alert" role="alert" hidden></div>
+              <div class="form-row">
+                <label for="pr-name"><span data-i18n="co.pr.name">Nom du produit</span> *</label>
+                <input id="pr-name" name="name" type="text" maxlength="80" required>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-row">
+                <label for="pr-desc"><span data-i18n="co.pr.desc">Description</span> *</label>
+                <textarea id="pr-desc" name="desc" maxlength="500" required></textarea>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row">
+                  <label for="pr-cat"><span data-i18n="co.pr.cat">Catégorie</span> *</label>
+                  <select id="pr-cat" name="cat" required data-fill="categories"></select>
+                  <div class="field-error"></div>
+                </div>
+                <div class="form-row">
+                  <label for="pr-price"><span data-i18n="co.pr.price">Prix (MAD)</span> *</label>
+                  <input id="pr-price" name="price" type="number" inputmode="decimal" min="1" max="100000" step="any" required>
+                  <div class="field-error"></div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label for="pr-stock"><span data-i18n="co.pr.stock">Quantité en stock</span> <span class="muted" data-i18n="ins.f.optional">(facultatif)</span></label>
+                <input id="pr-stock" name="stock" type="number" inputmode="numeric" min="0" max="999" step="1" aria-describedby="pr-stock-hint">
+                <div class="muted form-hint" id="pr-stock-hint" data-i18n="co.pr.stock.hint"></div>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-row photo-field" data-img="product">
+                <span class="label-like" id="pr-image-label"><span data-i18n="co.pr.image">Image du produit</span> <span class="muted" data-i18n="ins.f.optional">(facultatif)</span></span>
+                <div class="photo-field__body">
+                  <div class="photo-field__preview photo-field__preview--square" aria-hidden="true"><span data-icon="box"></span><img alt="" hidden></div>
+                  <div>
+                    <input class="sr-only" id="pr-image" name="image" type="file" accept="image/jpeg,image/png,image/webp" data-img-input aria-labelledby="pr-image-label">
+                    <label class="btn btn--outline btn--sm" for="pr-image"><span data-icon="upload"></span><span data-i18n="ins.f.photo.choose">Choisir une image</span></label>
+                    <button class="link-btn" type="button" data-img-remove hidden data-i18n="ins.f.photo.remove">Retirer</button>
+                    <div class="muted form-hint" data-i18n="co.pr.image.hint"></div>
+                  </div>
+                </div>
+                <div class="field-error"></div>
+              </div>
+              <div class="co-form__actions">
+                <button class="btn btn--primary" type="submit"><span data-icon="check"></span><span data-i18n="co.pr.save">Enregistrer le produit</span></button>
+                <button class="btn btn--outline" type="button" data-cancel="product" data-i18n="co.cancel">Annuler</button>
+              </div>
+            </form>
+
+            <div id="pr-list" class="co-list"></div>
+          </section>
+
+          <!-- JOBS -->
+          <section id="panel-jobs" role="tabpanel" aria-labelledby="tab-jobs" tabindex="0" hidden>
+            <div class="section-head section-head--row">
+              <div><h3 data-i18n="co.j.title">Mes offres d'emploi de démonstration</h3></div>
+              <div class="co-toolbar">
+                <a class="btn btn--outline btn--sm" href="emploi.html"><span data-icon="briefcase"></span><span data-i18n="co.j.view">Voir la page Emploi</span></a>
+                <button class="btn btn--primary btn--sm" type="button" id="jb-add"><span data-icon="plus"></span><span data-i18n="co.j.add">Créer une offre</span></button>
+              </div>
+            </div>
+
+            <form class="form-card co-form" id="form-job" novalidate hidden>
+              <h3 id="jb-form-title"></h3>
+              <p class="muted" data-i18n="ins.required.note">Les champs marqués d'une étoile (*) sont obligatoires.</p>
+              <div class="form-alert" role="alert" hidden></div>
+              <div class="form-row">
+                <label for="jb-title"><span data-i18n="co.j.name">Intitulé du poste</span> *</label>
+                <input id="jb-title" name="title" type="text" maxlength="100" required>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-row">
+                <label for="jb-desc"><span data-i18n="co.j.desc">Description du poste</span> *</label>
+                <textarea id="jb-desc" name="desc" maxlength="800" required></textarea>
+                <div class="field-error"></div>
+              </div>
+              <div class="form-grid">
+                <div class="form-row">
+                  <label for="jb-cat"><span data-i18n="co.j.cat">Domaine d'activité</span> *</label>
+                  <select id="jb-cat" name="cat" required data-fill="jobcats"></select>
+                  <div class="field-error"></div>
+                </div>
+                <div class="form-row">
+                  <label for="jb-region"><span data-i18n="co.j.region">Région du Sahara</span> *</label>
+                  <select id="jb-region" name="region" required data-fill="regions"></select>
+                  <div class="field-error"></div>
+                </div>
+              </div>
+              <div class="form-row">
+                <label class="check"><input id="jb-contact" name="showContact" type="checkbox" aria-describedby="jb-contact-hint"><span data-i18n="co.j.contact"></span></label>
+                <div class="muted form-hint" id="jb-contact-hint" data-i18n="co.j.contact.hint"></div>
+                <div class="field-error"></div>
+              </div>
+              <div class="co-form__actions">
+                <button class="btn btn--primary" type="submit"><span data-icon="check"></span><span data-i18n="co.j.save">Enregistrer l'offre</span></button>
+                <button class="btn btn--outline" type="button" data-cancel="job" data-i18n="co.cancel">Annuler</button>
+              </div>
+            </form>
+
+            <div id="jb-list" class="co-list"></div>
+          </section>
+
+          <p class="mt-2"><button class="link-btn link-btn--danger" type="button" id="co-reset"><span data-icon="trash"></span> <span data-i18n="co.reset"></span></button></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/crafts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/regions-i18n.js"></script>
+  <script src="js/inscription-i18n.js"></script>
+  <script src="js/coop-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/cooperative.js"></script>
+</body>
+</html>

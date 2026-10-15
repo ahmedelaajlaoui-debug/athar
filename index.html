@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>ATHAR — L'art du Sahara, raconté autrement</title>
+  <meta name="description" content="ATHAR : patrimoine, artisans et créations du Sahara marocain.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="home">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <!-- Hero -->
+    <section class="hero" data-bg="dunes">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0" data-i18n="hm.eyebrow">Patrimoine · Boutique · Expériences</span>
+          <h1 data-i18n="hm.h1">L’art du Sahara, raconté autrement.</h1>
+          <p data-i18n="hm.lead">ATHAR relie les artisans et coopératives du Sahara marocain à celles et ceux qui veulent comprendre, vivre et acheter l'artisanat avec son histoire.</p>
+          <div class="hero__actions">
+            <a class="btn btn--accent" href="boutique.html" data-i18n="cta.shop.discover">Découvrir la boutique</a>
+            <a class="btn btn--light" href="patrimoine.html" data-i18n="hm.cta.heritage">Explorer le patrimoine</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Three editorial cards -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="hm.s1.eyebrow">Chaque objet raconte une histoire</span>
+          <h2 data-i18n="hm.s1.title">Trois portes d'entrée vers le Sahara</h2>
+        </div>
+        <div class="grid grid--3">
+          <a class="editorial-card reveal" href="patrimoine.html" data-bg="heritage">
+            <div class="editorial-card__body"><h3 data-i18n="hm.c1.t">Patrimoine</h3><p data-i18n="hm.c1.x"></p></div>
+          </a>
+          <a class="editorial-card reveal" href="artisans.html" data-bg="workshop">
+            <div class="editorial-card__body"><h3 data-i18n="hm.c2.t">Artisans</h3><p data-i18n="hm.c2.x"></p></div>
+          </a>
+          <a class="editorial-card reveal" href="explorer.html" data-bg="desert">
+            <div class="editorial-card__body"><h3 data-i18n="hm.c3.t">Territoire</h3><p data-i18n="hm.c3.x"></p></div>
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Featured products -->
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div><span class="eyebrow" data-i18n="hm.feat.eyebrow">Aujourd'hui dans le Sahara</span><h2 data-i18n="hm.feat.title">Créations à la une</h2></div>
+          <a class="btn btn--outline" href="boutique.html" data-i18n="hm.feat.all">Voir toute la boutique</a>
+        </div>
+        <div class="grid grid--4" id="featured-products"></div>
+      </div>
+    </section>
+
+    <!-- Timeline -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head text-center" style="margin-inline:auto">
+          <span class="eyebrow" data-i18n="hm.tl.eyebrow">Du savoir-faire à votre porte</span>
+          <h2 data-i18n="hm.tl.title">De l’atelier à chez vous</h2>
+        </div>
+        <div class="timeline">
+          <div class="timeline__step reveal"><div class="timeline__icon" data-icon="thread"></div><h4 data-i18n="hm.tl.1.t">Artisan</h4><p data-i18n="hm.tl.1.x"></p></div>
+          <div class="timeline__step reveal"><div class="timeline__icon" data-icon="gem"></div><h4 data-i18n="hm.tl.2.t">Création</h4><p data-i18n="hm.tl.2.x"></p></div>
+          <div class="timeline__step reveal"><div class="timeline__icon" data-icon="shield"></div><h4 data-i18n="hm.tl.3.t">Vérification</h4><p data-i18n="hm.tl.3.x"></p></div>
+          <div class="timeline__step reveal"><div class="timeline__icon" data-icon="box"></div><h4 data-i18n="hm.tl.4.t">Expédition mutualisée</h4><p data-i18n="hm.tl.4.x"></p></div>
+          <div class="timeline__step reveal"><div class="timeline__icon" data-icon="home"></div><h4 data-i18n="hm.tl.5.t">Vous</h4><p data-i18n="hm.tl.5.x"></p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Destinations (the same Saharan destinations as the Explorer) -->
+    <section class="section section--green">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div><span class="eyebrow" style="color:#f0c9a0" data-i18n="hm.dest.eyebrow">Le Sahara sur la carte</span><h2 data-i18n="hm.dest.title">Destinations</h2></div>
+          <a class="btn btn--light" href="explorer.html" data-i18n="hm.dest.cta">Explorer la carte</a>
+        </div>
+        <div class="grid grid--4" id="home-cities"></div>
+      </div>
+    </section>
+
+    <!-- Read, understand, share: informational heritage content -->
+    <section class="section section--sand" id="lire">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div>
+            <span class="eyebrow" data-i18n="hm.read.eyebrow">Patrimoine et culture</span>
+            <h2 data-i18n="hm.read.title">Lire, comprendre, partager</h2>
+            <p class="muted" data-i18n="hm.read.text"></p>
+          </div>
+          <a class="btn btn--outline" href="patrimoine.html"><span data-i18n="hm.read.all">Tout le patrimoine</span><span data-icon="arrowRight"></span></a>
+        </div>
+        <div class="grid grid--4" id="home-reads"></div>
+        <div class="mt-2">
+          <h3 class="mb-1" data-i18n="hm.read.crafts">Savoir-faire à découvrir</h3>
+          <div class="chip-row" id="home-craft-links"></div>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/crafts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/regions-i18n.js"></script>
+  <script src="js/pages-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/regions-ui.js"></script>
+  <script src="js/index.js"></script>
+</body>
+</html>

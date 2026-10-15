@@ -1,0 +1,127 @@
+/* ==========================================================
+   account-i18n.js — texts of the account pages (Account Phase 3), French / English / Arabic
+   Loaded on profil.html and emploi.html, after translations.js, account.js and inscription-i18n.js.
+   Menu / role names live in account.js (they are needed on every page).
+   Format: "key": [fr, en, ar]  ({name} = variable)
+   ========================================================== */
+(() => {
+  const T = {
+    /* ----- profile page ----- */
+    "ac.eyebrow": ["Mon espace", "My account", "فضائي"],
+    "ac.h1": ["Mon profil", "My profile", "ملفي الشخصي"],
+    "ac.notice": ["Profil de démonstration : pas de vraie connexion, pas de serveur, pas de mot de passe. Les informations restent uniquement dans ce navigateur.", "Demo profile: no real sign-in, no server, no password. The information stays in this browser only.", "ملف تجريبي: لا تسجيل دخول حقيقي ولا خادم ولا كلمة مرور. تبقى المعلومات في هذا المتصفح فقط."],
+    "ac.default.name": ["Visiteur démo", "Demo visitor", "زائر تجريبي"],
+    "ac.default.email": ["Aucun email enregistré", "No email saved", "لا يوجد بريد إلكتروني محفوظ"],
+    "ac.tabs.aria": ["Sections de mon espace", "Sections of my account", "أقسام فضائي"],
+    "ac.tab.info": ["Informations", "Information", "المعلومات"],
+    "ac.tab.favs": ["Favoris", "Favorites", "المفضلة"],
+    "ac.tab.cart": ["Panier", "Cart", "السلة"],
+    "ac.tab.discover": ["Découvrir", "Discover", "اكتشف"],
+    "ac.tab.prefs": ["Compétences et préférences", "Skills and preferences", "المهارات والتفضيلات"],
+    "ac.tab.match": ["Offres pour moi", "Jobs for me", "عروض تناسبني"],
+    "ac.f.name": ["Nom", "Name", "الاسم"],
+    "ac.f.city": ["Ville (facultatif)", "City (optional)", "المدينة (اختياري)"],
+    "ac.f.cats": ["Savoir-faire qui m'intéressent", "Crafts I am interested in", "الحرف التي تهمني"],
+    "ac.save": ["Enregistrer", "Save", "حفظ"],
+    "ac.saved": ["Profil enregistré", "Profile saved", "تم حفظ الملف الشخصي"],
+    "ac.err.name": ["Entrez au moins 2 caractères.", "Enter at least 2 characters.", "أدخل حرفين على الأقل."],
+    "ac.err.email": ["Entrez un email valide.", "Enter a valid email.", "أدخل بريدًا إلكترونيًا صالحًا."],
+    "ac.client.note": ["Vous pouvez utiliser un nom et un email fictifs. Aucune commande ni aucun paiement n'est enregistré dans cet espace.", "You may use a made-up name and email. No order or payment is recorded in this area.", "يمكنك استعمال اسم وبريد وهميين. لا يُسجَّل في هذا الفضاء أي طلب أو دفع."],
+
+    /* customer: favorites, cart, discover */
+    "ac.fav.products": ["Produits favoris", "Favorite products", "المنتجات المفضلة"],
+    "ac.fav.artisans": ["Coopératives et artisans favoris", "Favorite cooperatives and artisans", "التعاونيات والحرفيون المفضلون"],
+    "ac.fav.manage": ["Ouvrir la page des favoris", "Open the favorites page", "فتح صفحة المفضلة"],
+    "ac.cart.minus": ["Diminuer la quantité de {name}", "Decrease the quantity of {name}", "إنقاص كمية {name}"],
+    "ac.cart.plus": ["Augmenter la quantité de {name}", "Increase the quantity of {name}", "زيادة كمية {name}"],
+    "ac.cart.qty": ["Quantité", "Quantity", "الكمية"],
+    "ac.cart.remove": ["Supprimer", "Remove", "حذف"],
+    "ac.cart.removed": ["Produit retiré du panier", "Product removed from the cart", "تم حذف المنتج من السلة"],
+    "ac.cart.each": ["{price} l'unité", "{price} each", "{price} للوحدة"],
+    "ac.cart.sub": ["Sous-total ({n})", "Subtotal ({n})", "المجموع الفرعي ({n})"],
+    "ac.cart.items.one": ["{n} article", "{n} item", "{n} منتج"],
+    "ac.cart.items.other": ["{n} articles", "{n} items", "{n} منتجات"],
+    "ac.cart.full": ["Ouvrir le panier complet", "Open the full cart", "فتح السلة كاملة"],
+    "ac.cart.demo": ["Démonstration : aucun paiement n'est effectué ici.", "Demo: no payment is made here.", "عرض تجريبي: لا يتم أي دفع هنا."],
+    "ac.d.shop.t": ["Boutique", "Shop", "المتجر"],
+    "ac.d.shop.x": ["Parcourez les créations de démonstration des coopératives du Sahara et ouvrez une fiche produit.", "Browse the demo creations of the Saharan cooperatives and open a product page.", "تصفح المنتجات التجريبية لتعاونيات الصحراء وافتح صفحة المنتج."],
+    "ac.d.shop.btn": ["Parcourir la boutique", "Browse the shop", "تصفح المتجر"],
+    "ac.d.coops.t": ["Coopératives et artisans", "Cooperatives and artisans", "التعاونيات والحرفيون"],
+    "ac.d.coops.x": ["Consultez les profils des coopératives (fictifs) et leurs produits.", "View the (fictional) cooperative profiles and their products.", "اطلع على ملفات التعاونيات (وهمية) ومنتجاتها."],
+    "ac.d.coops.btn": ["Voir les profils", "View the profiles", "عرض الملفات"],
+    "ac.d.cats": ["Parcourir par savoir-faire", "Browse by craft", "تصفح حسب الحرفة"],
+
+    /* job seeker */
+    "ac.j.skills": ["Mes compétences", "My skills", "مهاراتي"],
+    "ac.j.skills.label": ["Ajouter une compétence", "Add a skill", "إضافة مهارة"],
+    "ac.j.skills.ph": ["Ex. : tissage, vente, photographie", "E.g. weaving, sales, photography", "مثلًا: النسيج، البيع، التصوير"],
+    "ac.j.skills.add": ["Ajouter", "Add", "إضافة"],
+    "ac.j.skills.none": ["Aucune compétence ajoutée pour le moment.", "No skill added yet.", "لم تتم إضافة أي مهارة بعد."],
+    "ac.j.skills.remove": ["Retirer la compétence {s}", "Remove skill {s}", "إزالة المهارة {s}"],
+    "ac.j.skills.max": ["Vous pouvez ajouter 12 compétences au maximum.", "You can add up to 12 skills.", "يمكنك إضافة 12 مهارة كحد أقصى."],
+    "ac.j.skills.long": ["Une compétence ne dépasse pas 40 caractères.", "A skill is 40 characters at most.", "لا تتجاوز المهارة 40 حرفًا."],
+    "ac.j.region": ["Région du Sahara souhaitée", "Preferred Saharan region", "الجهة المفضلة في الصحراء"],
+    "ac.j.interests": ["Domaines professionnels", "Professional interests", "المجالات المهنية"],
+    "ac.j.exp": ["Niveau d'expérience", "Experience level", "مستوى الخبرة"],
+    "ac.j.expdetail": ["Mon expérience", "My experience", "خبرتي"],
+    "ac.j.expdetail.ph": ["Décrivez brièvement vos missions ou apprentissages.", "Briefly describe your tasks or training.", "صف باختصار مهامك أو تكوينك."],
+    "ac.j.expdetail.count": ["{n} / 600 caractères", "{n} / 600 characters", "{n} / 600 حرف"],
+    "ac.j.note": ["Ces informations servent seulement à filtrer les offres dans ce navigateur. Elles ne sont envoyées à aucune coopérative.", "This information only helps filter the offers in this browser. It is not sent to any cooperative.", "تُستعمل هذه المعلومات فقط لتصفية العروض في هذا المتصفح. ولا تُرسل إلى أي تعاونية."],
+    "ac.j.saved": ["Préférences enregistrées", "Preferences saved", "تم حفظ التفضيلات"],
+    "ac.m.title": ["Offres qui correspondent à mon profil", "Offers matching my profile", "العروض المناسبة لملفي"],
+    "ac.m.empty.profile": ["Indiquez au moins une région ou un domaine dans « Compétences et préférences » pour voir des offres adaptées.", "Choose at least a region or a field under “Skills and preferences” to see matching offers.", "حدد جهة أو مجالًا على الأقل في «المهارات والتفضيلات» لرؤية العروض المناسبة."],
+    "ac.m.none": ["Aucune offre ne correspond pour le moment. Consultez toutes les offres.", "No offer matches at the moment. Browse all offers.", "لا يوجد عرض مناسب حاليًا. تصفح كل العروض."],
+    "ac.m.count.one": ["{n} offre correspond à votre profil.", "{n} offer matches your profile.", "عرض واحد يناسب ملفك."],
+    "ac.m.count.other": ["{n} offres correspondent à votre profil.", "{n} offers match your profile.", "{n} عروض تناسب ملفك."],
+    "ac.m.all": ["Voir toutes les offres", "See all offers", "عرض كل العروض"],
+    "ac.m.detail": ["Voir le détail", "View details", "عرض التفاصيل"],
+
+    /* cooperative role */
+    "ac.coop.t": ["Votre espace coopérative", "Your cooperative area", "فضاء تعاونيتك"],
+    "ac.coop.x": ["Le profil, les produits et les offres d'emploi de la coopérative se gèrent dans le tableau de bord coopérative.", "The cooperative's profile, products and job ads are managed in the cooperative dashboard.", "تُدار ملف التعاونية ومنتجاتها وعروض الشغل من لوحة تحكم التعاونية."],
+
+    /* visitor */
+    "ac.v.t": ["Vous naviguez en visiteur", "You are browsing as a visitor", "أنت تتصفح كزائر"],
+    "ac.v.x": ["Aucun compte n'est nécessaire : l'accueil, l'Explorer, les destinations, le patrimoine, les coopératives, la boutique et les offres d'emploi sont ouverts à tous.", "No account is needed: the homepage, Explorer, destinations, heritage, cooperatives, shop and job offers are open to everyone.", "لا حاجة إلى حساب: الصفحة الرئيسية والاستكشاف والوجهات والتراث والتعاونيات والمتجر وعروض الشغل متاحة للجميع."],
+    "ac.v.links": ["Continuer la visite", "Keep browsing", "متابعة التصفح"],
+    "ac.v.register": ["Créer un compte (facultatif)", "Create an account (optional)", "إنشاء حساب (اختياري)"],
+    "ac.v.register.x": ["Un compte de démonstration vous donne un espace adapté à votre rôle. Ce n'est pas obligatoire.", "A demo account gives you a space suited to your role. It is not required.", "يمنحك الحساب التجريبي فضاءً مناسبًا لدورك. وهو غير إلزامي."],
+
+    /* role switcher + data */
+    "ac.sw.t": ["Essayer un autre rôle de démonstration", "Try another demo role", "جرّب دورًا تجريبيًا آخر"],
+    "ac.sw.x": ["Permet de tester chaque interface sans inscription. Ce n'est pas une connexion sécurisée : le rôle est seulement mémorisé dans ce navigateur.", "Lets you test each interface without registering. This is not a secure sign-in: the role is only remembered in this browser.", "تتيح تجربة كل واجهة دون تسجيل. هذا ليس تسجيل دخول آمنًا: يُحفظ الدور في هذا المتصفح فقط."],
+    "ac.sw.client.x": ["Profil, favoris, panier, boutique.", "Profile, favorites, cart, shop.", "الملف الشخصي والمفضلة والسلة والمتجر."],
+    "ac.sw.job.x": ["Profil, compétences, offres d'emploi.", "Profile, skills, job offers.", "الملف الشخصي والمهارات وعروض الشغل."],
+    "ac.sw.coop.x": ["Tableau de bord, produits, offres.", "Dashboard, products, job ads.", "لوحة التحكم والمنتجات وعروض الشغل."],
+    "ac.sw.visitor.x": ["Navigation publique, sans compte.", "Public browsing, no account.", "تصفح عام دون حساب."],
+    "ac.sw.use": ["Utiliser ce rôle", "Use this role", "استعمال هذا الدور"],
+    "ac.sw.current": ["Rôle actuel", "Current role", "الدور الحالي"],
+    "ac.sw.done": ["Rôle de démonstration : {role}", "Demo role: {role}", "الدور التجريبي: {role}"],
+    "ac.leave": ["Revenir en visiteur", "Back to visitor mode", "العودة إلى وضع الزائر"],
+    "ac.data.t": ["Données de démonstration", "Demo data", "بيانات تجريبية"],
+    "ac.clear": ["Effacer les données de démo", "Clear demo data", "مسح البيانات التجريبية"],
+    "ac.clear.confirm": ["Effacer favoris, panier, profils et rôle de démonstration de ce navigateur ? Le contenu de la coopérative n'est pas touché.", "Clear favorites, cart, profiles and demo role from this browser? Cooperative content is not touched.", "مسح المفضلة والسلة والملفات والدور التجريبي من هذا المتصفح؟ لن يتأثر محتوى التعاونية."],
+    "ac.cleared": ["Données de démonstration effacées", "Demo data cleared", "تم مسح البيانات التجريبية"],
+    "ac.back": ["Retour au site principal", "Back to the main website", "العودة إلى الموقع الرئيسي"],
+
+    /* ----- job page (emploi.html) ----- */
+    "ac.jb.detail": ["Voir le détail", "View details", "عرض التفاصيل"],
+    "ac.jb.back": ["Toutes les offres", "All offers", "كل العروض"],
+    "ac.jb.hascontact": ["Coordonnées disponibles", "Contact available", "بيانات التواصل متاحة"],
+    "ac.jb.match": ["Seulement les offres qui correspondent à mon profil", "Only offers matching my profile", "العروض المناسبة لملفي فقط"],
+    "ac.jb.match.hint": ["Selon votre région et vos domaines (profil de démo enregistré dans ce navigateur).", "Based on your region and fields (demo profile saved in this browser).", "حسب جهتك ومجالاتك (ملف تجريبي محفوظ في هذا المتصفح)."],
+    "ac.jb.match.edit": ["Modifier mon profil", "Edit my profile", "تعديل ملفي"],
+    "ac.jb.about": ["Description", "Description", "الوصف"],
+    "ac.jb.field": ["Domaine", "Field", "المجال"],
+    "ac.jb.region": ["Région", "Region", "الجهة"],
+    "ac.jb.contact.t": ["Contacter la coopérative", "Contact the cooperative", "التواصل مع التعاونية"],
+    "ac.jb.mail": ["Écrire un email", "Send an email", "إرسال بريد إلكتروني"],
+    "ac.jb.wa": ["Écrire sur WhatsApp", "Message on WhatsApp", "مراسلة عبر واتساب"],
+    "ac.jb.nocontact.seed": ["Aucune coordonnée disponible : cette annonce est un exemple fictif de démonstration.", "No contact details available: this advertisement is a fictional demo example.", "لا توجد بيانات تواصل: هذا الإعلان مثال وهمي للعرض فقط."],
+    "ac.jb.nocontact.coop": ["La coopérative n'a pas choisi d'afficher ses coordonnées pour cette annonce.", "The cooperative chose not to show its contact details for this ad.", "اختارت التعاونية عدم إظهار بيانات التواصل في هذا الإعلان."],
+    "ac.jb.noapply": ["ATHAR n'enregistre aucune candidature et n'envoie aucun message : il n'y a pas de formulaire de candidature. Quand des coordonnées sont affichées, vous contactez directement la coopérative depuis votre propre application.", "ATHAR does not record any application and does not send any message: there is no application form. When contact details are shown, you contact the cooperative directly from your own app.", "لا تسجل أثر أي ترشيح ولا ترسل أي رسالة: لا يوجد نموذج ترشيح. عند ظهور بيانات التواصل، تتواصل مباشرة مع التعاونية من تطبيقك الخاص."],
+    "ac.jb.notfound.t": ["Offre introuvable", "Offer not found", "العرض غير موجود"],
+    "ac.jb.notfound.x": ["Cette offre n'existe plus dans ce navigateur (les offres de démonstration sont stockées localement).", "This offer no longer exists in this browser (demo offers are stored locally).", "لم يعد هذا العرض موجودًا في هذا المتصفح (العروض التجريبية مخزنة محليًا)."],
+  };
+  ["fr", "en", "ar"].forEach((lang, i) => Object.keys(T).forEach((k) => { AA.translations[lang][k] = T[k][i]; }));
+})();

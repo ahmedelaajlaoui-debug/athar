@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Coffret personnalisé — ATHAR</title>
+  <meta name="description" content="Composez votre coffret du Sahara : choisissez vos créations, ajoutez un message et voyez le prix en direct.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="coffret">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero hero--small" data-bg="market">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0">Coffret personnalisé</span>
+          <h1>Composez votre coffret du Sahara.</h1>
+          <p>Une sélection unique pour vous ou pour offrir, avec un message personnel.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <div id="coffret-builder">
+          <div class="section-head">
+            <span class="eyebrow">Étape 1</span>
+            <h2>Pour quelle occasion ?</h2>
+          </div>
+          <div class="chip-row mb-2" id="occasion-chips" role="group" aria-label="Occasion"></div>
+
+          <div class="coffret-layout">
+            <div>
+              <div class="section-head" style="margin-bottom:1rem">
+                <span class="eyebrow">Étape 2</span>
+                <h2 style="font-size:1.8rem">Choisissez jusqu'à 6 créations</h2>
+              </div>
+              <div class="grid" id="coffret-products" style="gap:.8rem"></div>
+            </div>
+
+            <aside class="box-preview" aria-label="Aperçu du coffret">
+              <h3>Votre coffret</h3>
+              <div class="box-visual" id="box-visual"></div>
+              <div class="form-row">
+                <label for="coffret-message">Étape 3 — Votre message (facultatif)</label>
+                <textarea id="coffret-message" maxlength="140" placeholder="Ex. : Pour toi, un petit morceau du Sahara."></textarea>
+                <div class="muted" style="font-size:.8rem"><span id="msg-count">0</span>/140</div>
+              </div>
+              <div class="gift-note" id="gift-note">Votre message apparaîtra ici.</div>
+              <div id="coffret-lines"></div>
+              <div class="price-line"><span>Emballage cadeau</span><span>Offert (démo)</span></div>
+              <div class="price-line price-line--total"><span>Total</span><span id="coffret-total">0 MAD</span></div>
+              <p class="muted" style="font-size:.8rem">Hors livraison. Prix en MAD.</p>
+              <div class="hero__actions" style="margin-top:.8rem">
+                <button class="btn btn--primary" type="button" id="coffret-confirm">Créer mon coffret</button>
+                <button class="btn btn--outline" type="button" id="coffret-reset">Réinitialiser</button>
+              </div>
+            </aside>
+          </div>
+        </div>
+
+        <!-- Confirmation -->
+        <div class="confirmation hidden" id="coffret-confirmation" role="status">
+          <div class="check-big" data-icon="gift"></div>
+          <h2>Votre coffret est prêt</h2>
+          <p id="coffret-summary"></p>
+          <p class="notice">Les produits ont été ajoutés à votre panier. Démonstration : aucun coffret réel n'est préparé.</p>
+          <a class="btn btn--primary mt-1" href="panier.html">Voir mon panier</a>
+          <button class="btn btn--outline mt-1" type="button" id="coffret-again">Créer un autre coffret</button>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/coffret.js"></script>
+</body>
+</html>

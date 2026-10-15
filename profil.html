@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Mon profil — ATHAR</title>
+  <meta name="description" content="Votre espace ATHAR de démonstration, adapté à votre rôle : client, chercheur d'emploi, coopérative ou visiteur.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="profil">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="section">
+      <div class="container" style="max-width:960px">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="ac.eyebrow">Mon espace</span>
+          <h1 style="font-size:clamp(2rem,4vw,3rem)" data-i18n="ac.h1">Mon profil</h1>
+        </div>
+        <p class="notice mb-2" data-i18n="ac.notice">Profil de démonstration : pas de vraie connexion, pas de serveur, pas de mot de passe.</p>
+
+        <div class="profile-head">
+          <div class="avatar" id="avatar">V</div>
+          <div class="profile-head__text">
+            <h2 id="profile-name" style="margin:0"></h2>
+            <p class="muted" id="profile-email" style="margin:0"></p>
+            <p style="margin:.4rem 0 0"><span class="tag tag--green" id="profile-role"></span></p>
+          </div>
+        </div>
+
+        <div class="tabs" role="tablist" id="profile-tabs" data-i18n-attr="aria-label:ac.tabs.aria"></div>
+        <div id="tab-content" role="tabpanel"></div>
+        <div id="role-extra"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/crafts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/regions-i18n.js"></script>
+  <script src="js/inscription-i18n.js"></script>
+  <script src="js/coop-i18n.js"></script>
+  <script src="js/account-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/profil.js"></script>
+</body>
+</html>

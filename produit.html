@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Produit — ATHAR</title>
+  <meta name="description" content="Découvrez l'histoire derrière votre pièce artisanale.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="produit">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="section" style="padding-bottom:2rem">
+      <div class="container">
+        <p class="muted"><a href="boutique.html">Boutique</a> › <span id="breadcrumb-cat"></span> › <span id="breadcrumb-name"></span></p>
+        <div id="product-root"></div>
+      </div>
+    </section>
+
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head section-head--row">
+          <div><span class="eyebrow">Vous aimerez aussi</span><h2>Produits similaires</h2></div>
+          <a class="btn btn--outline" href="boutique.html">Retour à la boutique</a>
+        </div>
+        <div class="grid grid--4" id="related-products"></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/produit.js"></script>
+</body>
+</html>

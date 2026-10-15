@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Patrimoine — ATHAR</title>
+  <meta name="description" content="Patrimoine du Sahara marocain : culture hassanie, melhfa, bijoux, tissage, cuir, bakhour, thé, poésie et paysages.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="patrimoine">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero" data-bg="heritage" style="min-height:58vh">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0" data-i18n="hp.eyebrow">Un objet. Une histoire. Un patrimoine.</span>
+          <h1 data-i18n="hp.h1">Le patrimoine du Sahara marocain</h1>
+          <p data-i18n="hp.lead">Cinq savoir-faire, une culture orale et une hospitalité à comprendre avant de les admirer.</p>
+          <div class="hero__actions">
+            <a class="btn btn--accent" href="#savoir-faire" data-i18n="hp.cta1">Découvrir les savoir-faire</a>
+            <a class="btn btn--light" href="savoir-faire.html?id=the" data-i18n="hp.cta2">Le thé et l'hospitalité</a>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <div class="container mt-2">
+      <p class="notice"><strong data-i18n="hp.note.label">Note :</strong> <span data-i18n="hp.note.text">les textes de cette page sont des introductions générales et simplifiées.</span></p>
+    </div>
+
+    <!-- Introduction -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="hp.intro.eyebrow">Un patrimoine vivant</span>
+          <h2 data-i18n="hp.intro.title">Des gestes, des matières, des récits</h2>
+          <p class="muted" data-i18n="hp.intro.text"></p>
+        </div>
+        <div class="grid grid--3">
+          <div class="info-box reveal"><h3 data-i18n="hp.box1.t"></h3><p data-i18n="hp.box1.x"></p></div>
+          <div class="info-box reveal"><h3 data-i18n="hp.box2.t"></h3><p data-i18n="hp.box2.x"></p></div>
+          <div class="info-box reveal"><h3 data-i18n="hp.box3.t"></h3><p data-i18n="hp.box3.x"></p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- The 5 Saharan crafts (cards built by patrimoine.js from AA.crafts) -->
+    <section class="section section--sand" id="savoir-faire">
+      <span id="techniques"></span>
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="hp.crafts.eyebrow"></span>
+          <h2 data-i18n="hp.crafts.title"></h2>
+          <p class="muted" data-i18n="hp.crafts.text"></p>
+        </div>
+        <div class="craft-grid craft-grid--5" id="craft-grid"></div>
+      </div>
+    </section>
+
+    <!-- Culture articles: tea, music and poetry, cuisine, desert and oases -->
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="hp.topics.eyebrow"></span>
+          <h2 data-i18n="hp.topics.title"></h2>
+        </div>
+        <div class="grid grid--2" id="topic-grid"></div>
+      </div>
+    </section>
+
+    <!-- Motifs -->
+    <section class="section section--sand" id="motifs">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="hp.motifs.eyebrow"></span>
+          <h2 data-i18n="hp.motifs.title"></h2>
+          <p class="muted" data-i18n="hp.motifs.text"></p>
+        </div>
+        <div class="grid grid--3" id="motif-grid"></div>
+      </div>
+    </section>
+
+    <!-- Saviez-vous que -->
+    <section class="section section--green">
+      <div class="container text-center" style="max-width:760px">
+        <span class="eyebrow" style="color:#f0c9a0" data-i18n="hp.fact.eyebrow"></span>
+        <h2 id="fact-text" aria-live="polite"></h2>
+        <p style="color:#d8cdb4;font-size:.85rem" data-i18n="hp.fact.note"></p>
+        <button class="btn btn--light" type="button" id="next-fact" data-i18n="hp.fact.next"></button>
+      </div>
+    </section>
+
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/crafts.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/pages-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/patrimoine.js"></script>
+</body>
+</html>

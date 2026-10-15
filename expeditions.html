@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Expédition mutualisée — ATHAR</title>
+  <meta name="description" content="Comment fonctionne l'expédition mutualisée : des colis groupés depuis Laâyoune jusqu'à vous.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="expeditions">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="hero hero--small" data-bg="coast">
+      <div class="container">
+        <div class="hero__inner">
+          <span class="eyebrow" style="color:#f0c9a0">Expédition mutualisée</span>
+          <h1>Votre colis voyage avec d'autres.</h1>
+          <p>Ensemble, c'est plus simple, plus écologique et moins cher.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container">
+        <p class="notice mb-2"><strong>Important :</strong> tous les prix et délais de cette page sont illustratifs. Ils ne correspondent à aucun transporteur réel.</p>
+        <div class="section-head"><span class="eyebrow">Le parcours</span><h2>De Laâyoune jusqu'à vous</h2></div>
+        <div class="journey">
+          <div class="journey__step"><span class="icon-lg" data-icon="pin"></span><h4>Laâyoune</h4><p>Les pièces sont préparées à l'origine.</p></div>
+          <div class="journey__step"><span class="icon-lg" data-icon="box"></span><h4>Colis groupés</h4><p>Les commandes sont regroupées ensemble.</p></div>
+          <div class="journey__step"><span class="icon-lg" data-icon="truck"></span><h4>Transport</h4><p>Un seul trajet partagé par semaine.</p></div>
+          <div class="journey__step"><span class="icon-lg" data-icon="city"></span><h4>Ville de destination</h4><p>Dépôt dans votre ville.</p></div>
+          <div class="journey__step"><span class="icon-lg" data-icon="home"></span><h4>Vous</h4><p>Remise du colis.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section--sand">
+      <div class="container">
+        <div class="section-head"><span class="eyebrow">Comprendre</span><h2>Mutualisée ou express ?</h2></div>
+        <div class="split">
+          <div>
+            <h3>Comment ça marche</h3>
+            <ol>
+              <li>Vous commandez vos pièces auprès de différents artisans.</li>
+              <li>Les colis sont regroupés dans un point de collecte.</li>
+              <li>Un seul transport part vers la ville de destination.</li>
+              <li>Le coût est partagé : il diminue pour chacun.</li>
+            </ol>
+            <p class="info-box">La livraison mutualisée est plus lente, mais plus économique et moins polluante (un seul trajet pour plusieurs colis).</p>
+          </div>
+          <table class="compare-table">
+            <thead><tr><th></th><th>Mutualisée</th><th>Express</th></tr></thead>
+            <tbody>
+              <tr><td>Prix indicatif</td><td>À partir de 21 MAD</td><td>À partir de 37 MAD</td></tr>
+              <tr><td>Délai estimé</td><td>5 à 8 jours</td><td>1 à 3 jours</td></tr>
+              <tr><td>Économie</td><td>≈ 35 à 50 %</td><td>—</td></tr>
+              <tr><td>Impact</td><td>Plus faible</td><td>Plus élevé</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="container" style="max-width:860px">
+        <div class="section-head"><span class="eyebrow">Simulateur</span><h2>Estimez votre livraison</h2></div>
+        <form class="form-card" id="shipping-form" onsubmit="return false">
+          <div class="form-grid">
+            <div class="form-row"><label for="s-city">Ville de livraison</label><select id="s-city"></select></div>
+            <div class="form-row"><label for="s-weight">Poids du colis : <span id="s-weight-label"></span></label><input id="s-weight" type="range" min="0.5" max="15" step="0.5" value="2"></div>
+          </div>
+          <fieldset style="border:none;padding:0;margin:0">
+            <legend style="font-weight:600;font-size:.9rem;margin-bottom:.5rem">Mode de livraison</legend>
+            <label class="radio-card"><input type="radio" name="s-mode" value="pooled" checked><span><strong>Livraison mutualisée</strong><small>Économique · 5 à 8 jours</small></span></label>
+            <label class="radio-card"><input type="radio" name="s-mode" value="express"><span><strong>Livraison express</strong><small>Rapide · 1 à 3 jours</small></span></label>
+          </fieldset>
+        </form>
+        <div class="result-box" id="shipping-result" aria-live="polite"></div>
+        <p class="muted mt-1">Résultat illustratif, calculé avec une formule simple de démonstration.</p>
+        <div class="hero__actions"><a class="btn btn--primary" href="boutique.html">Choisir mes produits</a><a class="btn btn--outline" href="panier.html">Voir mon panier</a></div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/expeditions.js"></script>
+</body>
+</html>
