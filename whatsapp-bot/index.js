@@ -18,12 +18,14 @@ const googleTTS = require('google-tts-api');
 // ==========================================
 const SESSION_TIMEOUT_MS = 15 * 60 * 1000; // 15 min d'inactivité
 const PENDING_TIMEOUT_MS = 2 * 60 * 1000;  // 2 min confirmation de suppression
+const MANAGE_TIMEOUT_MS = 5 * 60 * 1000;   // 5 min d'inactivité dans le menu GERER
 const MAX_PHOTOS = 3;                      // Photos max par produit
 const MAX_VIDEO_PHOTOS = 4;                // Photos max dans la vidéo
 const AI_CALLS_PER_MINUTE = 20;            // Limite d'appels IA texte par artisan
 const DEFAULT_STOCK = 1;                   // Stock par défaut (si l'artisan répond "oui" / "1")
 const MAX_STOCK = 100000;                  // Stock maximum accepté
 const VOICE_REPLY_MAX_CHARS = 350;         // Longueur max de la réponse vocale
+const LOW_STOCK_THRESHOLD = 3;             // Alerte à la coopérative quand le stock passe à <= 3
 
 // Seuils au-delà desquels on demande confirmation du prix (en DH)
 const PRICE_LIMITS = { Melhfa: 3000, Bijoux: 15000, Tapis: 20000, Cuir: 8000, Bakhour: 1500, Autre: 10000 };
@@ -46,14 +48,16 @@ const GEMINI_MODELS = (process.env.GEMINI_MODELS || 'gemini-3.8-flash,gemini-3.7
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 const QR_DIR = path.join(__dirname, 'qrcodes');
 const VIDEO_DIR = path.join(__dirname, 'videos');
-const DB_FILE = path.join(__dirname, '..', 'products.json');
+const DB_FILE = path.join(__dirname, 'products.json');
 const COOP_FILE = path.join(__dirname, 'cooperatives.json');
 const LANG_FILE = path.join(__dirname, 'lang_memory.json');
+const ORDERS_FILE = path.join(__dirname, 'orders.json');
 
 if (!fs.existsSync(UPLOAD_DIR)) fs.mkdirSync(UPLOAD_DIR, { recursive: true });
 if (!fs.existsSync(QR_DIR)) fs.mkdirSync(QR_DIR, { recursive: true });
 if (!fs.existsSync(VIDEO_DIR)) fs.mkdirSync(VIDEO_DIR, { recursive: true });
 if (!fs.existsSync(DB_FILE)) fs.writeFileSync(DB_FILE, JSON.stringify([], null, 2), 'utf8');
+if (!fs.existsSync(ORDERS_FILE)) fs.writeFileSync(ORDERS_FILE, JSON.stringify([], null, 2), 'utf8');
 
 if (!fs.existsSync(COOP_FILE)) {
   const initialCooperatives = [
@@ -86,14 +90,34 @@ function writeProducts(products) {
   writeJsonAtomic(DB_FILE, products);
 }
 
-function findCooperativeByPhone(phone) {
+function readOrders() {
   try {
-    const list = JSON.parse(fs.readFileSync(COOP_FILE, 'utf8'));
-    return list.find((c) => c.phone === phone || c.altPhone === phone) || null;
+    return JSON.parse(fs.readFileSync(ORDERS_FILE, 'utf8'));
+  } catch (e) {
+    return [];
+  }
+}
+
+function writeOrders(orders) {
+  writeJsonAtomic(ORDERS_FILE, orders);
+}
+
+function readCoops() {
+  try {
+    return JSON.parse(fs.readFileSync(COOP_FILE, 'utf8'));
   } catch (e) {
     console.error('Erreur lecture cooperatives.json :', e.message);
-    return null;
+    return [];
   }
+}
+
+// Seules ces informations sont publiques (jamais les numéros de téléphone)
+function publicCoop(c) {
+  return { coopId: c.coopId, name: c.name, city: c.city, region: c.region, specialty: c.specialty };
+}
+
+function findCooperativeByPhone(phone) {
+  return readCoops().find((c) => c.phone === phone || (c.altPhone && c.altPhone === phone)) || null;
 }
 
 /**
@@ -155,7 +179,8 @@ function saveLang(key, lang) {
   }
 }
 
-const HASSANIA_RE = /(وفيت|درك|كاع|مرحبتي|نعت|ذي)/;
+// "ذي" seul (mot entier) pour ne pas confondre avec "الذي" de l'arabe standard
+const HASSANIA_RE = /(وفيت|درك|كاع|مرحبتي|نعت)|(^|\s)ذي(\s|$)/;
 const DARIJA_AR_RE = /(دابا|سلعة|السلعة|بغيت|شحال|ديال|ديالي|كاين|واخا|مزيان|فين|علاش|كيفاش|شنو|هادي|هاد|تصاور|تصويرة|صافي|زيد|ماشي)/;
 const DARIJA_LAT_RE = /\b(bghit|bghina|bgit|sel3a|sl3a|wakha|safi|3andi|3ndi|achno|ach|kifach|mzyan|mrhba|marhba|salam|n7at|nzid|hadi|hada|had|ghir|dyal|dyali|diali|chouf|werini|khli|smiya|daba|bzaf|chokran|afak|blach|kemelt|sir)\b/g;
 const FR_RE = /\b(bonjour|bonsoir|merci|publier|annuler|oui|non|je|vous|mes|voir|modifier|supprimer|aide|produit|produits|veux|ajouter|prix)\b/g;
@@ -186,8 +211,8 @@ function normalizeText(t) {
     .replace(/[إأآ]/g, 'ا')
     .replace(/ى/g, 'ي')
     .replace(/ة/g, 'ه')
-    // 4. Lettres répétées : "صافييييي" -> "صافيي"
-    .replace(/(.)\1{2,}/g, '$1$1')
+    // 4. Lettres répétées (3 fois ou plus) : "صافييييي" -> "صافي" (les chiffres sont épargnés)
+    .replace(/([^\d\s])\1{2,}/g, '$1')
     // 5. Nettoyage de la ponctuation et caractères spéciaux
     .replace(/['’`]/g, '')
     .replace(/[.,!?؟،;:"«»*_~()\-#]/g, ' ')
@@ -199,9 +224,12 @@ function normalizeText(t) {
 const wordCount = (t) => String(t || '').trim().split(/\s+/).filter(Boolean).length;
 
 function parsePriceInput(raw) {
-  if (!raw) return null;
+  if (raw === null || raw === undefined || raw === '') return null;
 
-  const s = toLatinDigits(String(raw).toLowerCase()).replace(',', '.');
+  let s = toLatinDigits(String(raw).toLowerCase());
+  // Séparateur de milliers : "1,500" ou "1.500" -> 1500 (virgule/point suivi d'exactement 3 chiffres)
+  s = s.replace(/(\d)[,.](?=\d{3}(?!\d))/g, '$1');
+  s = s.replace(',', '.');
   // Priorité au nombre suivi d'une devise ("2 pièces à 150 dh" -> 150)
   const withUnit = s.match(/(\d+(?:\.\d+)?)\s*(?:dhs?|mad|درهم|دراهم)/);
   const any = s.match(/\d+(?:\.\d+)?/);
@@ -292,28 +320,34 @@ const T = {
       `📖 *Commandes disponibles*\n\n` +
       `• *PUBLIER* : ajouter un produit\n` +
       `• *MES PRODUITS* : voir vos produits\n` +
-      `• *MODIFIER <réf> prix|nom|description <valeur>*\n   ex : MODIFIER 4821 prix 150\n` +
+      `• *GERER <réf>* : menu guidé (prix, nom, description, stock, suppression)\n` +
+      `• *MODIFIER <réf> prix|nom|description|stock <valeur>*\n   ex : MODIFIER 4821 prix 150\n` +
       `• *SUPPRIMER <réf>* : retirer un produit\n` +
       `• *STOCK <réf> <quantité>* : gérer le stock (0 = épuisé)\n` +
       `• *ANNULER* : annuler l'opération en cours\n\n` +
+      `🔔 Vous êtes prévenu automatiquement quand le stock d'un produit devient faible (≤ ${LOW_STOCK_THRESHOLD}) ou épuisé.\n` +
       `🎙️ Vous pouvez répondre par message vocal à n'importe quel moment.`,
     ar: () =>
       `📖 *الأوامر المتاحة*\n\n` +
       `*نشر* : إضافة منتج جديد\n` +
       `*منتجاتي* : عرض منتجاتك\n` +
-      `*تعديل <المرجع> ثمن|اسم|وصف <القيمة>*\n   مثال: تعديل 4821 ثمن 150\n` +
+      `*تسيير <المرجع>* : قائمة موجهة (ثمن، اسم، وصف، كمية، حذف)\n` +
+      `*تعديل <المرجع> ثمن|اسم|وصف|كمية <القيمة>*\n   مثال: تعديل 4821 ثمن 150\n` +
       `*حذف <المرجع>* : حذف منتج\n` +
       `*مخزون <المرجع> <الكمية>* : إدارة الكمية (0 = نفد)\n` +
       `*إلغاء* : إلغاء العملية الجارية\n\n` +
+      `🔔 ستصلك رسالة تلقائية عندما تنخفض كمية منتج (≤ ${LOW_STOCK_THRESHOLD}) أو تنفد.\n` +
       `🎙️ يمكنك الرد برسالة صوتية في أي وقت.`,
     darija: () =>
       `📖 *الأوامر لي كاينين*\n\n` +
       `*نشر* : زيد سلعة جديدة\n` +
       `*منتجاتي* : شوف السلعة ديالك\n` +
-      `*تعديل <المرجع> ثمن|اسم|وصف <القيمة>*\n   مثال: تعديل 4821 ثمن 150\n` +
+      `*تسيير <المرجع>* : قائمة بالنمرات (ثمن، سمية، وصف، كمية، مسح)\n` +
+      `*تعديل <المرجع> ثمن|اسم|وصف|كمية <القيمة>*\n   مثال: تعديل 4821 ثمن 150\n` +
       `*حذف <المرجع>* : مسح سلعة\n` +
       `*مخزون <المرجع> <الكمية>* : الكمية (0 = سالات)\n` +
       `*إلغاء* : وقف العملية\n\n` +
+      `🔔 غادي توصلك رسالة بوحدها ملي الكمية تنقص (≤ ${LOW_STOCK_THRESHOLD}) ولا تسالي.\n` +
       `🎙️ تقدر تجاوب بميساج فوكال فوقما بغيتي.`
   },
   not_product: {
@@ -347,19 +381,19 @@ const T = {
       `🆔 Réf : *#${p.id}*\n🏢 Coopérative : ${p.cooperativeName}\n🏷️ Nom : ${p.name}\n📂 Catégorie : ${p.category}\n` +
       `💰 Prix : ${p.price} DH\n📦 Stock : ${p.stock} pièce(s)\n📝 Description : ${p.description}\n\n` +
       `🔗 Lien : ${link}\n\n👇 Voici l'étiquette QR du colis\n_(Création de la vidéo promo en cours…)_\n\n` +
-      `💡 Tapez *AIDE* pour modifier le stock ou les infos.`,
+      `⚙️ Pour modifier le stock, le prix ou supprimer : *GERER ${p.id}*`,
     ar: (p, link) =>
       `🎉 *تم نشر المنتوج على المنصة بنجاح!*\n\n` +
       `🆔 المرجع : #${p.id}\n🏢 التعاونية : ${p.cooperativeName}\n🏷️ الاسم : ${p.name}\n📂 الصنف : ${p.category}\n` +
       `💰 السعر : ${p.price} درهم\n📦 المخزون : ${p.stock} قطعة\n📝 الوصف : ${p.description}\n\n` +
       `🔗 رابط المنتج : ${link}\n\n👇 ها هو ملصق رمز QR الخاص بالطرود\n_(جاري إنشاء الفيديو الترويجي الآن…)_\n\n` +
-      `💡 اكتب *مساعدة* لتعديل المخزون أو تغيير المعلومات.`,
+      `⚙️ لتعديل الكمية أو الثمن أو الحذف اكتب : *تسيير ${p.id}*`,
     darija: (p, link) =>
       `🎉 *السلعة تنشرات بنجاح!*\n\n` +
       `🆔 المرجع : #${p.id}\n🏢 التعاونية : ${p.cooperativeName}\n🏷️ السمية : ${p.name}\n📂 النوع : ${p.category}\n` +
       `💰 الثمن : ${p.price} DH\n📦 الكمية : ${p.stock}\n📝 الوصف : ${p.description}\n\n` +
       `🔗 الرابط : ${link}\n\n👇 هادا هو ملصق QR ديال الكولي\n_(كنصاوبو الفيديو دابا…)_\n\n` +
-      `💡 كتب *مساعدة* باش تبدل الكمية ولا المعلومات.`
+      `⚙️ باش تبدل الكمية ولا الثمن ولا تمسح كتب : *تسيير ${p.id}*`
   },
   qr_caption: {
     fr: (id) => `🏷️ Étiquette du colis #${id}`,
@@ -392,9 +426,9 @@ const T = {
     darija: (n, total) => `📦 *السلعة ديالك* (${n}${total > n ? ` من ${total}` : ''})`
   },
   usage_modify: {
-    fr: () => `⚠️ Format : *MODIFIER <réf> prix|nom|description <valeur>*\nEx : MODIFIER 4821 prix 150`,
-    ar: () => `⚠️ الصيغة : *تعديل <المرجع> ثمن|اسم|وصف <القيمة>*\nمثال : تعديل 4821 ثمن 150`,
-    darija: () => `⚠️ الصيغة : *تعديل <المرجع> ثمن|اسم|وصف <القيمة>*\nمثال : تعديل 4821 ثمن 150`
+    fr: () => `⚠️ Format : *MODIFIER <réf> prix|nom|description|stock <valeur>*\nEx : MODIFIER 4821 prix 150`,
+    ar: () => `⚠️ الصيغة : *تعديل <المرجع> ثمن|اسم|وصف|كمية <القيمة>*\nمثال : تعديل 4821 ثمن 150`,
+    darija: () => `⚠️ الصيغة : *تعديل <المرجع> ثمن|اسم|وصف|كمية <القيمة>*\nمثال : تعديل 4821 ثمن 150`
   },
   usage_delete: {
     fr: () => `⚠️ Format : *SUPPRIMER <réf>*\nEx : SUPPRIMER 4821`,
@@ -406,15 +440,20 @@ const T = {
     ar: () => `⚠️ الصيغة : *مخزون <المرجع> <الكمية>*\nمثال : مخزون 4821 12`,
     darija: () => `⚠️ الصيغة : *مخزون <المرجع> <الكمية>*\nمثال : مخزون 4821 12`
   },
+  usage_manage: {
+    fr: () => `⚠️ Format : *GERER <réf>*\nEx : GERER 4821`,
+    ar: () => `⚠️ الصيغة : *تسيير <المرجع>*\nمثال : تسيير 4821`,
+    darija: () => `⚠️ الصيغة : *تسيير <المرجع>*\nمثال : تسيير 4821`
+  },
   not_found: {
     fr: (ref) => `⚠️ Produit introuvable parmi vos produits (réf : ${ref}). Tapez *MES PRODUITS*.`,
     ar: (ref) => `⚠️ المنتج غير موجود ضمن منتجاتك (المرجع : ${ref}). اكتب *منتجاتي*.`,
     darija: (ref) => `⚠️ السلعة ما لقيناهاش فالسلعة ديالك (المرجع : ${ref}). كتب *منتجاتي*.`
   },
   bad_field: {
-    fr: () => `⚠️ Champ inconnu. Utilisez : *prix*, *nom* ou *description*.`,
-    ar: () => `⚠️ حقل غير معروف. استعمل : *ثمن* أو *اسم* أو *وصف*.`,
-    darija: () => `⚠️ حقل ما معروفش. استعمل : *ثمن* ولا *اسم* ولا *وصف*.`
+    fr: () => `⚠️ Champ inconnu. Utilisez : *prix*, *nom*, *description* ou *stock*.`,
+    ar: () => `⚠️ حقل غير معروف. استعمل : *ثمن* أو *اسم* أو *وصف* أو *كمية*.`,
+    darija: () => `⚠️ حقل ما معروفش. استعمل : *ثمن* ولا *اسم* ولا *وصف* ولا *كمية*.`
   },
   bad_price: {
     fr: () => `⚠️ Prix invalide. Donnez un montant (exemple : 150).`,
@@ -447,9 +486,9 @@ const T = {
     darija: () => `⚠️ الفيشي كبير بزاف. صيفط واحد صغير.`
   },
   updated: {
-    fr: (p) => `✅ Produit #${p.id} mis à jour :\n🏷️ ${p.name}\n💰 ${p.price} DH`,
-    ar: (p) => `✅ تم تحديث المنتج #${p.id} :\n🏷️ ${p.name}\n💰 ${p.price} درهم`,
-    darija: (p) => `✅ تبدلات السلعة #${p.id} :\n🏷️ ${p.name}\n💰 ${p.price} DH`
+    fr: (p) => `✅ Produit #${p.id} mis à jour :\n🏷️ ${p.name}\n💰 ${p.price} DH\n📦 Stock : ${stockLabel(p, 'fr')}`,
+    ar: (p) => `✅ تم تحديث المنتج #${p.id} :\n🏷️ ${p.name}\n💰 ${p.price} درهم\n📦 المخزون : ${stockLabel(p, 'ar')}`,
+    darija: (p) => `✅ تبدلات السلعة #${p.id} :\n🏷️ ${p.name}\n💰 ${p.price} DH\n📦 الكمية : ${stockLabel(p, 'ar')}`
   },
   delete_confirm: {
     fr: (p) => `🗑️ Supprimer *${p.name}* (#${p.id}) ?\nConfirmez avec *OUI* ou dites *ANNULER*.`,
@@ -465,6 +504,16 @@ const T = {
     fr: (p, qty) => (qty === 0 ? `📊 *${p.name}* est maintenant marqué *ÉPUISÉ*.` : `📊 Stock de *${p.name}* : ${qty}`),
     ar: (p, qty) => (qty === 0 ? `📊 *${p.name}* أصبح *نافداً*.` : `📊 مخزون *${p.name}* : ${qty}`),
     darija: (p, qty) => (qty === 0 ? `📊 *${p.name}* سالات.` : `📊 الكمية ديال *${p.name}* : ${qty}`)
+  },
+  low_stock: {
+    fr: (name, id, qty) => `🟠 *Stock faible !*\n\n🏷️ ${name} (#${id})\n📦 Il ne reste que *${qty}* pièce(s).\n\n👉 Pour réapprovisionner : *STOCK ${id} <quantité>*`,
+    ar: (name, id, qty) => `🟠 *المخزون منخفض!*\n\n🏷️ ${name} (#${id})\n📦 لم يتبق سوى *${qty}* قطعة.\n\n👉 لتحديث الكمية اكتب : *مخزون ${id} <الكمية>*`,
+    darija: (name, id, qty) => `🟠 *الكمية قربات تسالي!*\n\n🏷️ ${name} (#${id})\n📦 بقاو غير *${qty}* د الحبات.\n\n👉 باش تزيد الكمية كتب : *مخزون ${id} <الكمية>*`
+  },
+  out_of_stock: {
+    fr: (name, id) => `🔴 *Stock épuisé !*\n\n🏷️ ${name} (#${id})\nLe produit est marqué *ÉPUISÉ* sur le site.\n\n👉 Pour le remettre en vente : *STOCK ${id} <quantité>*`,
+    ar: (name, id) => `🔴 *نفد المخزون!*\n\n🏷️ ${name} (#${id})\nتم وسم المنتج *نافداً* في الموقع.\n\n👉 لإعادته للبيع اكتب : *مخزون ${id} <الكمية>*`,
+    darija: (name, id) => `🔴 *السلعة سالات!*\n\n🏷️ ${name} (#${id})\nتحطات *سالات* فالسيت.\n\n👉 باش ترجعها للبيع كتب : *مخزون ${id} <الكمية>*`
   },
   session_expired: {
     fr: () => `⏰ Session expirée par inactivité. Dites *PUBLIER* pour recommencer.`,
@@ -510,11 +559,72 @@ function tt(entry, lang, ...args) {
   return fn(...args);
 }
 
-const YES_WORDS = ['oui', 'نعم', 'ok', 'confirm', '1', 'wakha', 'tamam', 'daccord', 'واخا'];
-const FINISH_WORDS = ['fin', 'safi', 'صافي', 'وفيت', 'kemelt', 'ok'];
-const CANCEL_WORDS = ['annuler', 'إلغاء', 'الغاء', 'blach', 'بلاش'];
-const HELP_WORDS = ['aide', 'help', 'مساعدة', 'aide moi'];
-const LIST_WORDS = ['mes produits', 'produits', 'منتجاتي', 'سلعتي'];
+// ==========================================
+// AFFICHAGE VISIBLE & MENU DE GESTION (GERER)
+// ==========================================
+const stockLabel = (p, lang) => {
+  const ar = lang !== 'fr';
+  if (p.stock === null || p.stock === undefined) return ar ? 'غير محدود' : 'illimité';
+  if (p.stock === 0) return ar ? 'نفد ❌' : 'ÉPUISÉ ❌';
+  if (p.stock <= LOW_STOCK_THRESHOLD) return `${p.stock} ⚠️`;
+  return String(p.stock);
+};
+
+const FIELD_LABEL = {
+  price:       { fr: 'le *nouveau prix* en DH (ex : 150)',  ar: '*الثمن الجديد* بالدرهم (مثال : 150)', darija: '*الثمن الجديد* بالدرهم (مثال : 150)' },
+  name:        { fr: 'le *nouveau nom* du produit',         ar: '*الاسم الجديد* للمنتج',                darija: '*السمية الجديدة* ديال السلعة' },
+  description: { fr: 'la *nouvelle description*',           ar: '*الوصف الجديد*',                       darija: '*الوصف الجديد*' },
+  stock:       { fr: 'la *quantité en stock* (0 = épuisé)', ar: '*الكمية المتوفرة* (0 = نفد)',          darija: '*الكمية* لي عندك (0 = سالات)' }
+};
+
+const MG = {
+  menu: {
+    fr: (p) =>
+      `⚙️ *Gestion du produit #${p.id}*\n\n🏷️ ${p.name}\n💰 ${p.price} DH\n📦 Stock : ${stockLabel(p, 'fr')}\n\n` +
+      `Répondez avec un numéro :\n` +
+      `1️⃣ Modifier le *prix*\n2️⃣ Modifier le *nom*\n3️⃣ Modifier la *description*\n` +
+      `4️⃣ Changer la *quantité en stock*\n5️⃣ *Supprimer* le produit\n0️⃣ Quitter`,
+    ar: (p) =>
+      `⚙️ *تسيير المنتج #${p.id}*\n\n🏷️ ${p.name}\n💰 ${p.price} درهم\n📦 المخزون : ${stockLabel(p, 'ar')}\n\n` +
+      `أجب برقم :\n` +
+      `1️⃣ تعديل *الثمن*\n2️⃣ تعديل *الاسم*\n3️⃣ تعديل *الوصف*\n` +
+      `4️⃣ تغيير *الكمية*\n5️⃣ *حذف* المنتج\n0️⃣ خروج`,
+    darija: (p) =>
+      `⚙️ *تسيير السلعة #${p.id}*\n\n🏷️ ${p.name}\n💰 ${p.price} DH\n📦 الكمية : ${stockLabel(p, 'ar')}\n\n` +
+      `جاوب بنمرة :\n` +
+      `1️⃣ بدل *الثمن*\n2️⃣ بدل *السمية*\n3️⃣ بدل *الوصف*\n` +
+      `4️⃣ بدل *الكمية*\n5️⃣ *امسح* السلعة\n0️⃣ خروج`
+  },
+  ask_value: {
+    fr: (f) => `✍️ Envoyez ${FIELD_LABEL[f].fr}\n(ou *0* pour revenir)`,
+    ar: (f) => `✍️ أرسل ${FIELD_LABEL[f].ar}\n(أو *0* للرجوع)`,
+    darija: (f) => `✍️ صيفط ${FIELD_LABEL[f].darija}\n(ولا *0* باش ترجع)`
+  }
+};
+
+// Carte produit visible + action de gestion
+function productCaption(prod, lang) {
+  const ar = lang !== 'fr';
+  const badge = prod.stock === 0 ? '🔴' : (prod.stock !== null && prod.stock !== undefined && prod.stock <= LOW_STOCK_THRESHOLD ? '🟠' : '🟢');
+  return (
+    `${badge} 🆔 *#${prod.id}*\n` +
+    `🏷️ *${prod.name}*\n` +
+    `💰 *${prod.price} ${ar ? 'درهم' : 'DH'}*\n` +
+    `📦 ${ar ? 'الكمية' : 'Stock'} : ${stockLabel(prod, lang)}\n\n` +
+    `🔗 ${productLink(prod.id)}\n\n` +
+    `⚙️ ${ar ? 'للتسيير (ثمن، كمية، حذف) أرسل :' : 'Pour gérer (prix, stock, suppression), envoyez :'}\n` +
+    `👉 *${ar ? 'تسيير' : 'GERER'} ${prod.id}*`
+  );
+}
+
+// Toutes les listes de mots sont normalisées comme le texte reçu (ex : "مساعدة" -> "مساعده")
+const normList = (arr) => arr.map(normalizeText);
+const YES_WORDS = normList(['oui', 'نعم', 'ok', 'confirm', '1', 'wakha', 'tamam', 'daccord', 'واخا']);
+const DELETE_YES_WORDS = normList(['oui', 'نعم', 'wakha', 'واخا', 'confirm']); // plus strict : pas de "1" ni "ok"
+const FINISH_WORDS = normList(['fin', 'safi', 'صافي', 'وفيت', 'kemelt', 'ok']);
+const CANCEL_WORDS = normList(['annuler', 'إلغاء', 'الغاء', 'blach', 'بلاش']);
+const HELP_WORDS = normList(['aide', 'help', 'مساعدة', 'aide moi']);
+const LIST_WORDS = normList(['mes produits', 'produits', 'منتجاتي', 'سلعتي']);
 
 // Les motifs s'appliquent sur le texte déjà normalisé (normalizeText)
 const PUBLISH_PATTERNS = [
@@ -1012,6 +1122,9 @@ async function decodeQrCodeFromBuffer(imageBuffer) {
 // ==========================================
 const app = express();
 
+// Derrière ngrok / un hébergeur : bons protocole et host dans imagesUrls / videoUrl
+app.set('trust proxy', 1);
+
 try {
   const helmet = require('helmet');
   app.use(helmet({ contentSecurityPolicy: false, crossOriginResourcePolicy: false }));
@@ -1039,6 +1152,12 @@ try {
 }
 
 app.use(express.json());
+
+// Pas de cache sur l'API : un produit ajouté par WhatsApp apparaît tout de suite sur le site
+app.use('/api/', (req, res, next) => {
+  res.set('Cache-Control', 'no-store');
+  next();
+});
 
 const PORT = process.env.PORT || 3001;
 
@@ -1087,6 +1206,20 @@ if (!process.env.API_KEY) {
   console.warn('ℹ️ API_KEY non défini : PATCH /api/products/:id/stock est ouvert à tous. Ajoutez API_KEY dans .env.');
 }
 
+// Limiteur de commandes (par IP) : 5 commandes / minute
+const checkoutHits = new Map();
+function checkoutLimiter(req, res, next) {
+  const now = Date.now();
+  const hits = (checkoutHits.get(req.ip) || []).filter((t) => now - t < 60 * 1000);
+  if (hits.length >= 5) {
+    return res.status(429).json({ error: 'Trop de commandes. Réessayez dans une minute.' });
+  }
+  hits.push(now);
+  checkoutHits.set(req.ip, hits);
+  next();
+}
+setInterval(() => checkoutHits.clear(), 10 * 60 * 1000).unref();
+
 function formatProduct(p, req, coopMap) {
   const host = req.get('host');
   const protocol = req.protocol;
@@ -1105,9 +1238,10 @@ function formatProduct(p, req, coopMap) {
   };
 }
 
+// Les numéros de téléphone ne sont JAMAIS renvoyés par l'API publique
 app.get('/api/cooperatives', (req, res) => {
   try {
-    res.json(JSON.parse(fs.readFileSync(COOP_FILE, 'utf8')));
+    res.json(readCoops().map(publicCoop));
   } catch (err) {
     res.status(500).json({ error: 'Erreur lecture coopératives' });
   }
@@ -1116,15 +1250,14 @@ app.get('/api/cooperatives', (req, res) => {
 app.get('/api/cooperatives/:coopId/products', (req, res) => {
   try {
     const { coopId } = req.params;
-    const coops = JSON.parse(fs.readFileSync(COOP_FILE, 'utf8'));
-    const coop = coops.find((c) => c.coopId === coopId);
+    const coop = readCoops().find((c) => c.coopId === coopId);
     if (!coop) return res.status(404).json({ error: 'Coopérative introuvable' });
 
     const coopProducts = readProducts()
       .filter((p) => p.coopId === coopId)
       .map((p) => formatProduct(p, req, null));
 
-    res.json({ cooperative: coop, totalProducts: coopProducts.length, products: coopProducts });
+    res.json({ cooperative: publicCoop(coop), totalProducts: coopProducts.length, products: coopProducts });
   } catch (error) {
     res.status(500).json({ error: 'Erreur filtre coopérative' });
   }
@@ -1132,8 +1265,7 @@ app.get('/api/cooperatives/:coopId/products', (req, res) => {
 
 app.get('/api/products', (req, res) => {
   try {
-    const coops = JSON.parse(fs.readFileSync(COOP_FILE, 'utf8'));
-    const coopMap = new Map(coops.map((c) => [c.coopId, c]));
+    const coopMap = new Map(readCoops().map((c) => [c.coopId, c]));
     const { q, coopId, city, region, minPrice, maxPrice } = req.query;
 
     let list = readProducts();
@@ -1161,13 +1293,222 @@ app.get('/api/products', (req, res) => {
   }
 });
 
+// Détail d'un produit (produit.html?id=1001, lien du QR)
+app.get('/api/products/:id', (req, res) => {
+  try {
+    const coopMap = new Map(readCoops().map((c) => [c.coopId, c]));
+    const p = readProducts().find((x) => String(x.id) === req.params.id);
+    if (!p) return res.status(404).json({ error: 'Produit introuvable' });
+    res.json(formatProduct(p, req, coopMap));
+  } catch (error) {
+    res.status(500).json({ error: 'Erreur lecture produit' });
+  }
+});
+
+// ==========================================
+// NOTIFICATIONS COOPÉRATIVE (commande + alerte de stock)
+// ==========================================
+// Identifiant WhatsApp d'une coopérative (numéros très longs = identifiants @lid)
+function coopChatId(coop) {
+  const num = String(coop.phone || '').replace(/\D/g, '');
+  if (!num) return null;
+  return num.length >= 14 ? `${num}@lid` : `${num}@c.us`;
+}
+
+// Langue habituelle de la coopérative (mémorisée quand elle écrit au bot)
+function coopLang(coop) {
+  return langMemory.get(coop.phone) || (coop.altPhone && langMemory.get(coop.altPhone)) || 'fr';
+}
+
+async function notifyCoopOrder(coop, lines, order) {
+  try {
+    const chatId = coopChatId(coop);
+    if (!chatId) return;
+    const total = lines.reduce((n, l) => n + l.price * l.qty, 0);
+    const text =
+      `🛒 *Nouvelle commande !* (${order.ref})\n\n` +
+      lines.map((l) => `• ${l.name} (#${l.id}) × ${l.qty} — ${l.price * l.qty} DH\n   📦 Stock restant : ${l.stockLeft === null ? 'illimité' : l.stockLeft}`).join('\n') +
+      `\n\n💰 Total : *${total} DH* (paiement à la livraison)\n\n` +
+      `👤 ${order.customer.name || '-'}\n📞 ${order.customer.phone || '-'}\n📍 ${order.customer.city || '-'}\n🏠 ${order.customer.address || '-'}`;
+    await client.sendMessage(chatId, text);
+  } catch (e) {
+    console.warn('⚠️ Notification coopérative impossible :', e.message);
+  }
+}
+
+/**
+ * Alerte de stock : envoyée UNE SEULE FOIS quand le stock passe sous le seuil
+ * (ou tombe à 0), pas à chaque commande suivante.
+ * previous / current = stock avant et après la baisse.
+ */
+async function notifyStockAlert(coop, product, previous, current) {
+  try {
+    if (current === null || current === undefined || previous === null || previous === undefined) return;
+    let kind = null;
+    if (current === 0 && previous > 0) kind = 'OUT';
+    else if (current > 0 && current <= LOW_STOCK_THRESHOLD && previous > LOW_STOCK_THRESHOLD) kind = 'LOW';
+    if (!kind) return;
+
+    const chatId = coopChatId(coop);
+    if (!chatId) return;
+    const lang = coopLang(coop);
+    const text = kind === 'OUT'
+      ? tt(T.out_of_stock, lang, product.name, product.id)
+      : tt(T.low_stock, lang, product.name, product.id, current);
+    await client.sendMessage(chatId, text);
+  } catch (e) {
+    console.warn('⚠️ Alerte stock impossible :', e.message);
+  }
+}
+
+/**
+ * items : [{ id, qty }]   customer : { name, phone, city, address }
+ * Regroupe les lignes d'un même produit, vérifie tout le stock d'abord,
+ * puis décrémente en une seule écriture (le stock ne peut jamais devenir négatif).
+ */
+function placeOrder(items, customer) {
+  if (!Array.isArray(items) || items.length === 0 || items.length > 20) {
+    return { status: 400, body: { error: 'Panier invalide' } };
+  }
+
+  // 1. Regrouper par produit (évite le double décompte d'un même produit)
+  const wanted = new Map();
+  for (const it of items) {
+    const qty = parseInt(it && it.qty, 10);
+    if (!it || it.id === undefined || !Number.isInteger(qty) || qty < 1 || qty > 50) {
+      return { status: 400, body: { error: 'Quantité invalide' } };
+    }
+    const key = String(it.id);
+    wanted.set(key, (wanted.get(key) || 0) + qty);
+  }
+
+  // 2. Vérifier le stock total demandé
+  const products = readProducts();
+  const picked = [];
+  for (const [id, qty] of wanted) {
+    if (qty > 50) return { status: 400, body: { error: 'Quantité invalide' } };
+    const product = products.find((p) => String(p.id) === id);
+    if (!product) return { status: 404, body: { error: 'Produit introuvable', id } };
+    if (product.stock !== null && product.stock !== undefined && product.stock < qty) {
+      return { status: 409, body: { error: 'Stock insuffisant', id: product.id, name: product.name, stock: product.stock } };
+    }
+    picked.push({ product, qty });
+  }
+
+  // 3. Décrémenter
+  const lines = picked.map(({ product, qty }) => {
+    const previousStock = product.stock === undefined ? null : product.stock;
+    if (product.stock !== null && product.stock !== undefined) {
+      product.stock -= qty;
+      product.status = product.stock === 0 ? 'EPUISE' : 'DISPONIBLE';
+      product.updatedAt = new Date().toISOString();
+    }
+    return {
+      id: product.id,
+      coopId: product.coopId,
+      name: product.name,
+      price: product.price,
+      qty,
+      previousStock,
+      stockLeft: product.stock === undefined ? null : product.stock
+    };
+  });
+  writeProducts(products);
+
+  const order = {
+    ref: 'CMD-' + Date.now().toString().slice(-8),
+    createdAt: new Date().toISOString(),
+    status: 'NOUVELLE',
+    customer: {
+      name: clip(customer && customer.name, 80),
+      phone: clip(customer && customer.phone, 25),
+      city: clip(customer && customer.city, 60),
+      address: clip(customer && customer.address, 200)
+    },
+    items: lines.map(({ stockLeft, previousStock, ...rest }) => rest),
+    total: lines.reduce((n, l) => n + l.price * l.qty, 0)
+  };
+  const orders = readOrders();
+  orders.push(order);
+  writeOrders(orders);
+
+  // Prévenir chaque coopérative concernée sur WhatsApp (sans bloquer la réponse)
+  try {
+    const coops = readCoops();
+    const byCoop = new Map();
+    lines.forEach((l) => {
+      if (!byCoop.has(l.coopId)) byCoop.set(l.coopId, []);
+      byCoop.get(l.coopId).push(l);
+    });
+    for (const [coopId, coopLines] of byCoop) {
+      const coop = coops.find((c) => c.coopId === coopId);
+      if (!coop) continue;
+      notifyCoopOrder(coop, coopLines, order).then(() => {
+        // Alerte stock faible / épuisé, après le message de commande
+        coopLines.forEach((l) => notifyStockAlert(coop, l, l.previousStock, l.stockLeft));
+      });
+    }
+  } catch (e) {
+    console.warn('⚠️ Notification commandes :', e.message);
+  }
+
+  return { status: 200, body: { success: true, order } };
+}
+
+// Commande complète : { customer: {...}, items: [{ id, qty }] }
+app.post('/api/orders', checkoutLimiter, (req, res) => {
+  try {
+    const out = placeOrder(req.body && req.body.items, req.body && req.body.customer);
+    res.status(out.status).json(out.body);
+  } catch (e) {
+    console.error('Erreur commande :', e.message);
+    res.status(500).json({ error: 'Erreur lors de la commande' });
+  }
+});
+
+// Achat d'un seul produit : { qty, customer? }
+app.post('/api/products/:id/purchase', checkoutLimiter, (req, res) => {
+  try {
+    const out = placeOrder([{ id: req.params.id, qty: req.body && req.body.qty }], req.body && req.body.customer);
+    if (out.status !== 200) return res.status(out.status).json(out.body);
+    const line = out.body.order.items[0];
+    const p = readProducts().find((x) => String(x.id) === String(line.id));
+    const stock = p && p.stock !== undefined ? p.stock : null;
+    res.json({ success: true, stock, available: stock === null || stock > 0, order: out.body.order });
+  } catch (e) {
+    res.status(500).json({ error: 'Erreur achat' });
+  }
+});
+
+// Commande du site (formulaire client complet -> WhatsApp coopérative)
+app.post('/api/checkout', checkoutLimiter, (req, res) => {
+  try {
+    const { customer, items } = req.body || {};
+    if (!customer || clip(customer.name, 80).length < 2) {
+      return res.status(400).json({ error: 'Nom du client requis' });
+    }
+    const phone = String(customer.phone || '').replace(/[^\d+]/g, '');
+    if (phone.replace(/\D/g, '').length < 8) {
+      return res.status(400).json({ error: 'Numéro de téléphone invalide' });
+    }
+    if (clip(customer.city, 60).length < 2 || clip(customer.address, 200).length < 3) {
+      return res.status(400).json({ error: 'Ville et adresse requises' });
+    }
+    const out = placeOrder(items, { ...customer, phone });
+    res.status(out.status).json(out.body);
+  } catch (e) {
+    console.error('Erreur checkout :', e.message);
+    res.status(500).json({ error: 'Erreur lors de la commande' });
+  }
+});
+
 // ==========================================
 // MODIFICATION DU STOCK DEPUIS LE SITE WEB
 // ==========================================
 app.patch('/api/products/:id/stock', requireApiKey, (req, res) => {
   try {
     const productId = Number(req.params.id);
-    const { qty, decrement } = req.body;
+    const { qty, decrement } = req.body || {};
 
     const products = readProducts();
     const product = products.find((p) => p.id === productId);
@@ -1176,18 +1517,30 @@ app.patch('/api/products/:id/stock', requireApiKey, (req, res) => {
       return res.status(404).json({ error: 'Produit introuvable' });
     }
 
+    const previous = product.stock === undefined ? null : product.stock;
+
     if (decrement !== undefined) {
-      const currentStock = product.stock === null || product.stock === undefined ? 0 : product.stock;
-      product.stock = Math.max(0, currentStock - Number(decrement));
+      const dec = Number(decrement);
+      if (!Number.isFinite(dec) || dec < 0) return res.status(400).json({ error: '"decrement" invalide' });
+      const currentStock = previous === null ? 0 : previous;
+      product.stock = Math.max(0, currentStock - dec);
     } else if (qty !== undefined) {
-      product.stock = Math.max(0, parseInt(qty, 10));
+      const q = parseInt(qty, 10);
+      if (!Number.isFinite(q) || q < 0 || q > MAX_STOCK) return res.status(400).json({ error: '"qty" invalide' });
+      product.stock = q;
     } else {
       return res.status(400).json({ error: 'Fournissez "qty" ou "decrement"' });
     }
 
     product.status = product.stock === 0 ? 'EPUISE' : 'DISPONIBLE';
+    product.updatedAt = new Date().toISOString();
 
     writeProducts(products);
+
+    // Alerte à la coopérative si le stock vient de baisser sous le seuil
+    const coop = readCoops().find((c) => c.coopId === product.coopId);
+    if (coop && previous !== null && product.stock < previous) notifyStockAlert(coop, product, previous, product.stock);
+
     res.json({ success: true, product });
   } catch (error) {
     res.status(500).json({ error: 'Erreur lors de la mise à jour du stock' });
@@ -1220,6 +1573,7 @@ const client = new Client({
 
 const userSessions = new Map();
 const pendingActions = new Map();
+const manageStates = new Map(); // sender -> { step, productId, coopId, field, expires }
 
 let timeoutTimer = null;
 function startSessionCleaner() {
@@ -1235,6 +1589,9 @@ function startSessionCleaner() {
     }
     for (const [id, p] of pendingActions) {
       if (now > p.expires) pendingActions.delete(id);
+    }
+    for (const [id, m] of manageStates) {
+      if (now > m.expires) manageStates.delete(id);
     }
   }, 60 * 1000);
 }
@@ -1288,7 +1645,7 @@ async function withTyping(msg, task) {
 }
 
 // ==========================================
-// COMMANDES DE GESTION (liste, modifier, supprimer, stock)
+// COMMANDES DE GESTION (liste, gérer, modifier, supprimer, stock)
 // ==========================================
 function parseCommand(text, cleanText) {
   const t = toLatinDigits(text);
@@ -1305,6 +1662,10 @@ function parseCommand(text, cleanText) {
   m = t.match(/^(?:stock|مخزون)\s+#?(\d+)\s+(\d+)$/i);
   if (m) return { type: 'stock', ref: m[1], qty: parseInt(m[2], 10) };
   if (/^(?:stock|مخزون)(?:\s|$)/i.test(t)) return { type: 'stock_usage' };
+
+  m = t.match(/^(?:g[eé]rer|manage|(?:ل)?(?:تسيير|تيسير|تسير|ادارة|إدارة))\s*[:#]?\s*(\d+)\s*$/i);
+  if (m) return { type: 'manage', ref: m[1] };
+  if (/^(?:g[eé]rer|manage|(?:ل)?(?:تسيير|تيسير|تسير|ادارة|إدارة))(?:\s|$)/i.test(t)) return { type: 'manage_usage' };
 
   return null;
 }
@@ -1355,22 +1716,7 @@ async function sendVisualProductList(msg, targetChatId, coop, lang = 'fr') {
   const recentProducts = mine.slice(-6).reverse();
 
   for (const prod of recentProducts) {
-    const isAr = lang !== 'fr';
-    const prodUrl = productLink(prod.id);
-
-    const stockTxt =
-      prod.stock === null || prod.stock === undefined
-        ? (isAr ? 'غير محدود' : 'illimité')
-        : prod.stock === 0
-          ? (isAr ? 'نفد ❌' : 'ÉPUISÉ ❌')
-          : String(prod.stock);
-
-    const caption =
-      `🆔 *#${prod.id}*\n` +
-      `🏷️ *${prod.name}*\n` +
-      `💰 *${prod.price} ${isAr ? 'درهم' : 'DH'}*\n` +
-      `📊 ${isAr ? 'الكمية' : 'Stock'} : ${stockTxt}\n\n` +
-      `🔗 *${isAr ? 'رابط المنتج على الموقع :' : 'Lien sur le site :'}*\n${prodUrl}`;
+    const caption = productCaption(prod, lang);
 
     const firstImage = prod.images && prod.images.length > 0 ? prod.images[0] : null;
     const imagePath = firstImage ? path.join(UPLOAD_DIR, firstImage) : null;
@@ -1391,6 +1737,134 @@ async function sendVisualProductList(msg, targetChatId, coop, lang = 'fr') {
   }
 }
 
+// ==========================================
+// MENU GUIDÉ « GERER <réf> » (prix, nom, description, quantité, suppression)
+// ==========================================
+async function handleManageFlow(msg, ctx) {
+  const { sender, text, cleanText, lang } = ctx;
+  const st = manageStates.get(sender);
+  if (!st) return false;
+  if (Date.now() > st.expires) {
+    manageStates.delete(sender);
+    return false;
+  }
+
+  // Une vraie commande ou une demande de publication sort du menu
+  if (parseCommand(text, cleanText) || isPublishRequest(cleanText) ||
+      HELP_WORDS.includes(cleanText) || LIST_WORDS.includes(cleanText)) {
+    manageStates.delete(sender);
+    return false;
+  }
+  if (CANCEL_WORDS.includes(cleanText)) {
+    manageStates.delete(sender);
+    await msg.reply(tt(MESSAGES.cancel_ok, lang));
+    return true;
+  }
+
+  const products = readProducts();
+  const product = products.find((p) => p.id === st.productId && p.coopId === st.coopId);
+  if (!product) {
+    manageStates.delete(sender);
+    await msg.reply(tt(T.not_found, lang, st.productId));
+    return true;
+  }
+  st.expires = Date.now() + MANAGE_TIMEOUT_MS;
+  const choice = toLatinDigits(text).trim();
+
+  // ---- MENU ----
+  if (st.step === 'MENU') {
+    const fields = { '1': 'price', '2': 'name', '3': 'description', '4': 'stock' };
+    if (choice === '0') {
+      manageStates.delete(sender);
+      await msg.reply(tt(MESSAGES.cancel_ok, lang));
+    } else if (fields[choice]) {
+      st.step = 'ASK_VALUE';
+      st.field = fields[choice];
+      await msg.reply(tt(MG.ask_value, lang, st.field));
+    } else if (choice === '5') {
+      st.step = 'CONFIRM_DELETE';
+      await msg.reply(tt(T.delete_confirm, lang, product));
+    } else {
+      await msg.reply(tt(MG.menu, lang, product));
+    }
+    return true;
+  }
+
+  // ---- CONFIRMATION DE SUPPRESSION ----
+  if (st.step === 'CONFIRM_DELETE') {
+    if (DELETE_YES_WORDS.includes(cleanText)) {
+      products.splice(products.indexOf(product), 1);
+      writeProducts(products);
+      removeProductFiles(product);
+      manageStates.delete(sender);
+      await msg.reply(tt(T.deleted, lang));
+    } else {
+      st.step = 'MENU';
+      await msg.reply(tt(MG.menu, lang, product));
+    }
+    return true;
+  }
+
+  // ---- SAISIE DE LA VALEUR ----
+  if (st.step === 'ASK_VALUE') {
+    if (choice === '0') {
+      st.step = 'MENU';
+      await msg.reply(tt(MG.menu, lang, product));
+      return true;
+    }
+
+    if (st.field === 'price') {
+      const price = parsePriceInput(text);
+      if (price === null) {
+        await msg.reply(tt(T.bad_price, lang));
+        return true;
+      }
+      product.price = price;
+    } else if (st.field === 'stock') {
+      const digits = toLatinDigits(text).match(/\d+/);
+      const qty = digits ? parseInt(digits[0], 10) : null;
+      if (qty === null || qty < 0 || qty > MAX_STOCK) {
+        await msg.reply(tt(T.stock_invalid, lang));
+        return true;
+      }
+      product.stock = qty;
+      product.status = qty === 0 ? 'EPUISE' : 'DISPONIBLE';
+    } else if (st.field === 'name') {
+      const v = clip(text, 80);
+      if (v.length < 2) {
+        await msg.reply(tt(T.invalid_text, lang));
+        return true;
+      }
+      product.name = v;
+    } else if (st.field === 'description') {
+      const v = clip(text, 600);
+      if (v.length < 5) {
+        await msg.reply(tt(T.invalid_text, lang));
+        return true;
+      }
+      product.description = v;
+    }
+
+    product.updatedAt = new Date().toISOString();
+    writeProducts(products);
+    st.step = 'MENU';
+    st.field = null;
+    await msg.reply(`✅ ${lang === 'fr' ? 'Modifié avec succès' : 'تم بنجاح'}\n\n${tt(MG.menu, lang, product)}`);
+    return true;
+  }
+
+  manageStates.delete(sender);
+  return false;
+}
+
+// Ferme une publication en cours (supprime ses photos) pour éviter qu'elle capte les réponses du menu
+function dropPublishSession(sender) {
+  const s = userSessions.get(sender);
+  if (!s) return;
+  s.photos.forEach((f) => safeUnlink(path.join(UPLOAD_DIR, f)));
+  userSessions.delete(sender);
+}
+
 async function handleManagement(msg, { sender, text, cleanText, senderPhone, lang, userName }) {
   const pending = pendingActions.get(sender);
   if (pending && Date.now() > pending.expires) pendingActions.delete(sender);
@@ -1398,13 +1872,17 @@ async function handleManagement(msg, { sender, text, cleanText, senderPhone, lan
   // (sinon un "oui" donné au récapitulatif pourrait supprimer un produit par erreur)
   const livePending = userSessions.has(sender) ? null : pendingActions.get(sender);
 
+  // Menu guidé GERER en cours (hors session de publication)
+  if (!userSessions.has(sender) && (await handleManageFlow(msg, { sender, text, cleanText, lang }))) return true;
+
   if (livePending && CANCEL_WORDS.includes(cleanText)) {
     pendingActions.delete(sender);
     await msg.reply(tt(MESSAGES.cancel_ok, lang));
     return true;
   }
 
-  if (livePending && YES_WORDS.includes(cleanText)) {
+  // Suppression : confirmation stricte (oui / نعم / wakha), pas de "1" ni "ok"
+  if (livePending && DELETE_YES_WORDS.includes(cleanText)) {
     pendingActions.delete(sender);
     const products = readProducts();
     const idx = products.findIndex((p) => p.id === livePending.productId && p.coopId === livePending.coopId);
@@ -1429,7 +1907,7 @@ async function handleManagement(msg, { sender, text, cleanText, senderPhone, lan
   }
 
   // Seule la liste reste permise si la coopérative n'a pas le droit de modifier
-  const writeCommands = ['modify', 'delete', 'stock'];
+  const writeCommands = ['modify', 'delete', 'stock', 'manage'];
   if (writeCommands.includes(cmd.type) && coop.canPublish === false) {
     await msg.reply(tt(T.no_permission, lang, coop.name));
     return true;
@@ -1449,6 +1927,38 @@ async function handleManagement(msg, { sender, text, cleanText, senderPhone, lan
     case 'stock_usage':
       await msg.reply(tt(T.usage_stock, lang));
       return true;
+    case 'manage_usage': {
+      const mine = readProducts().filter((p) => p.coopId === coop.coopId).slice(-6).reverse();
+      if (!mine.length) {
+        await msg.reply(tt(T.no_products, lang));
+        return true;
+      }
+      const ar = lang !== 'fr';
+      const rows = mine.map((p) => `• *#${p.id}* ${p.name} — ${p.price} ${ar ? 'درهم' : 'DH'}`).join('\n');
+      await msg.reply(
+        (ar ? 'أي منتج بغيتي تسير؟ كتب *تسيير* + المرجع، مثال :' : 'Quel produit gérer ? Écrivez *GERER* + la réf, exemple :') +
+        ` *${ar ? 'تسيير' : 'GERER'} ${mine[0].id}*\n\n${rows}`
+      );
+      return true;
+    }
+    case 'manage': {
+      const products = readProducts();
+      const product = findOwnedProduct(products, coop.coopId, cmd.ref);
+      if (!product) {
+        await msg.reply(tt(T.not_found, lang, cmd.ref));
+        return true;
+      }
+      dropPublishSession(sender); // sinon les réponses du menu partent dans la session de publication
+      manageStates.set(sender, {
+        step: 'MENU',
+        productId: product.id,
+        coopId: coop.coopId,
+        field: null,
+        expires: Date.now() + MANAGE_TIMEOUT_MS
+      });
+      await msg.reply(tt(MG.menu, lang, product));
+      return true;
+    }
     case 'modify': {
       const products = readProducts();
       const product = findOwnedProduct(products, coop.coopId, cmd.ref);
@@ -1460,6 +1970,7 @@ async function handleManagement(msg, { sender, text, cleanText, senderPhone, lan
       const priceFields = ['prix', 'price', 'ثمن', 'الثمن', 'السعر', 'سعر'];
       const nameFields = ['nom', 'name', 'اسم', 'الاسم', 'سمية', 'السمية'];
       const descFields = ['description', 'desc', 'وصف', 'الوصف'];
+      const stockFields = ['stock', 'quantite', 'quantité', 'qty', 'كمية', 'الكمية', 'مخزون', 'المخزون'];
 
       if (priceFields.includes(cmd.field)) {
         const price = parsePriceInput(cmd.value);
@@ -1469,9 +1980,28 @@ async function handleManagement(msg, { sender, text, cleanText, senderPhone, lan
         }
         product.price = price;
       } else if (nameFields.includes(cmd.field)) {
-        product.name = clip(cmd.value, 80);
+        const v = clip(cmd.value, 80);
+        if (v.length < 2) {
+          await msg.reply(tt(T.invalid_text, lang));
+          return true;
+        }
+        product.name = v;
       } else if (descFields.includes(cmd.field)) {
-        product.description = clip(cmd.value, 600);
+        const v = clip(cmd.value, 600);
+        if (v.length < 5) {
+          await msg.reply(tt(T.invalid_text, lang));
+          return true;
+        }
+        product.description = v;
+      } else if (stockFields.includes(cmd.field)) {
+        const digits = toLatinDigits(cmd.value).match(/\d+/);
+        const qty = digits ? parseInt(digits[0], 10) : null;
+        if (qty === null || qty < 0 || qty > MAX_STOCK) {
+          await msg.reply(tt(T.stock_invalid, lang));
+          return true;
+        }
+        product.stock = qty;
+        product.status = qty === 0 ? 'EPUISE' : 'DISPONIBLE';
       } else {
         await msg.reply(tt(T.bad_field, lang));
         return true;
@@ -1489,6 +2019,7 @@ async function handleManagement(msg, { sender, text, cleanText, senderPhone, lan
         await msg.reply(tt(T.not_found, lang, cmd.ref));
         return true;
       }
+      dropPublishSession(sender);
       pendingActions.set(sender, {
         productId: product.id,
         coopId: coop.coopId,
@@ -1529,6 +2060,7 @@ async function performGlobalIntent(intent, msg, ctx) {
       userSessions.delete(sender);
     }
     pendingActions.delete(sender);
+    manageStates.delete(sender);
     await msg.reply(tt(MESSAGES.cancel_ok, lang));
     return true;
   }
@@ -1589,6 +2121,7 @@ async function routeEarly(msg, ctx, session) {
 // ==========================================
 function createSession(sender, ctx) {
   pendingActions.delete(sender); // une publication annule toute suppression en attente
+  manageStates.delete(sender);   // et ferme le menu GERER
   const s = {
     step: 'PHOTOS',
     photos: [],
@@ -1670,11 +2203,11 @@ async function handlePhoto(msg, ctx, buffer, mimetype) {
     s.category = analysis.category;
   }
 
-  const fileName = `p_${Date.now()}_${Math.floor(Math.random() * 10000)}.jpg`;
+  const fileName = `p_${Date.now()}_${Math.floor(Math.random() * 10000)}.webp`;
   await sharp(buffer)
     .rotate()
-    .resize(1600, 1600, { fit: 'inside', withoutEnlargement: true })
-    .jpeg({ quality: 85 })
+    .resize(800, 800, { fit: 'inside', withoutEnlargement: true })
+    .webp({ quality: 80 })
     .toFile(path.join(UPLOAD_DIR, fileName));
   s.photos.push(fileName);
 
@@ -1724,7 +2257,7 @@ async function acceptPrice(msg, ctx, s, price) {
     return;
   }
   s.price = price;
-  s.step = 'STOCK'; // nouvelle étape : quantité en stock
+  s.step = 'STOCK'; // étape : quantité en stock
   await msg.reply(tt(MESSAGES.ask_stock, ctx.lang, price));
 }
 
@@ -2050,7 +2583,13 @@ async function processMessage(msg) {
 
   // Message vocal : transcription puis traitement comme du texte
   if (isVoice) {
-    const purpose = session && ['PRICE', 'CONFIRM_PRICE', 'STOCK'].includes(session.step) ? 'price' : 'text';
+    // Nombre attendu (prix / quantité) : publication OU menu GERER
+    const ms = manageStates.get(sender);
+    const numericStep =
+      (session && ['PRICE', 'CONFIRM_PRICE', 'STOCK'].includes(session.step)) ||
+      (ms && ms.step === 'ASK_VALUE' && ['price', 'stock'].includes(ms.field));
+    const purpose = numericStep ? 'price' : 'text';
+
     let transcript = '';
     try {
       transcript = await withTyping(msg, async () => {
