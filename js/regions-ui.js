@@ -1,133 +1,74 @@
-/* panier.js — shopping cart page (data lives in localStorage via AA.cart) */
-document.addEventListener("DOMContentLoaded", async () => {
-  const root = document.getElementById("cart-root");
+/* ==========================================================
+   regions-ui.js — helpers shared by explorer.html and region.html (Phase 3)
+   Load after main.js (needs AA.icon, AA.t) and before explorer.js / region.js.
 
-  // 1. Chargement et fusion des produits créés via WhatsApp
-  try {
-    const res = await fetch('/api/products');
-    if (res.ok) {
-      const apiProducts = await res.json();
-      const formattedApi = apiProducts.map((p) => {
-        const firstImg = (p.imagesUrls && p.imagesUrls.length > 0)
-          ? p.imagesUrls[0]
-          : (p.images && p.images[0] ? `/uploads/${p.images[0]}` : 'assets/placeholder.jpg');
+   - AA.regionUrl(id)     → "region.html?city=<id>"           (city page)
+   - AA.regionMapUrl(id)  → "explorer.html?city=<id>#carte"   (back to the map, city highlighted)
+   - AA.findRegion(param) → region from a URL parameter (also accepts common spellings)
+   - AA.regionArt(region) → illustration used on cards and headers (SVG, always loads)
+   - AA.regionMapSvg(opts)→ illustrated map of the Moroccan Sahara (SVG), same projection as the pins
+   ========================================================== */
 
-        return {
-          id: p.id,
-          name: p.name,
-          cat: p.category || p.cat || "Melhfa",
-          city: p.city || "Laâyoune",
-          price: p.price,
-          stock: p.stock === null || p.stock === undefined ? 10 : p.stock,
-          verified: true,
-          image: firstImg,
-          images: p.imagesUrls || [firstImg],
-          artisan: p.managerName || p.phone || "Artisan",
-          coop: p.cooperativeName || "Coopérative partenaire"
-        };
-      });
+AA.regionUrl = (id) => `region.html?city=${encodeURIComponent(id)}`;
+AA.regionMapUrl = (id) => `explorer.html?city=${encodeURIComponent(id)}#carte`;
 
-      const existingIds = new Set(formattedApi.map((p) => String(p.id)));
-      const staticFiltered = (window.AA?.products || []).filter((p) => !existingIds.has(String(p.id)));
-      window.AA.products = [...formattedApi, ...staticFiltered];
-    }
-  } catch (err) {
-    console.warn("API produits non joignable :", err);
+/* Extra spellings accepted in the URL (the canonical ids are the ones in regions.js) */
+AA.REGION_ALIASES = { laayoun: "laayoune", "el-aaiun": "laayoune", semara: "smara", "es-semara": "smara", essemara: "smara", bojador: "boujdour", "tan-tan": "tantan", guelmin: "guelmim", "cap-juby": "tarfaya" };
+AA.findRegion = (param) => {
+  if (!param) return null;
+  const id = String(param).trim().toLowerCase();
+  return AA.regionById(AA.REGION_ALIASES[id] || id) || null;
+};
+
+/* Colour pair per theme (project palette: green, teal, terracotta) */
+AA.REGION_THEMES = {
+  oasis: ["#1f4a3a", "#153528"],
+  coast: ["#25525e", "#173642"],
+  desert: ["#b5532f", "#6e2e1a"],
+};
+
+/* Card / header illustration: gradient + faint star lattice + the city's line icon */
+AA.regionArt = (region, uid = "a") => {
+  const [c1, c2] = AA.REGION_THEMES[region.theme] || AA.REGION_THEMES.desert;
+  const gold = "#e9c58a";
+  const gid = `rg-${region.id}-${uid}`;
+  const pid = `rp-${region.id}-${uid}`;
+  const iconBody = AA.ICON_PATHS[region.icon] || AA.ICON_PATHS.star8;
+  return `<svg viewBox="0 0 400 300" aria-hidden="true" focusable="false" preserveAspectRatio="xMidYMid slice">
+    <defs>
+      <linearGradient id="${gid}" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="${c1}"/><stop offset="1" stop-color="${c2}"/></linearGradient>
+      <pattern id="${pid}" width="60" height="60" patternUnits="userSpaceOnUse"><polygon points="${AA.starPoints(30, 30, 24, 13)}" fill="none" stroke="${gold}" stroke-width="1.4" opacity=".28"/></pattern>
+    </defs>
+    <rect width="400" height="300" fill="url(#${gid})"/>
+    <rect width="400" height="300" fill="url(#${pid})"/>
+    <circle cx="200" cy="140" r="78" fill="${c2}" opacity=".55"/>
+    <circle cx="200" cy="140" r="78" fill="none" stroke="${gold}" stroke-width="2" opacity=".7"/>
+    <g transform="translate(152 92) scale(4)" fill="none" stroke="${gold}" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${iconBody}</g>
+    <path d="M0 262q50-26 100 0t100 0 100 0 100 0v38H0z" fill="${c2}" opacity=".55"/>
+  </svg>`;
+};
+
+/* Illustrated map of the Moroccan Sahara: Atlantic coastline + desert land, nothing else.
+   No borders, no administrative areas, no country labels (places are only named and located).
+   opts.mini : small locator without decoration */
+AA.regionMapSvg = ({ mini = false } = {}) => {
+  const m = AA.MAP, s = AA.MAP_SHAPES;
+  const P = (lon, lat) => AA.mapProject(lon, lat);
+  const pts = (list) => list.map(([lo, la]) => { const p = P(lo, la); return `${p.x.toFixed(1)},${p.y.toFixed(1)}`; }).join(" ");
+  const land = AA.landRing();
+
+  let decor = "";
+  if (!mini) {
+    // Dune lines (clipped to the land) and a few small dune crests
+    const d = (lon, lat, n) => { const p = P(lon, lat); return `<path d="M${p.x.toFixed(1)} ${p.y.toFixed(1)}q10-7 20 0${"t20 0".repeat(n)}"/>`; };
+    decor += `<g clip-path="url(#landclip)" fill="none" stroke="#d3b982" stroke-width="1.4" opacity=".95">${d(-13.6, 25.2, 3)}${d(-12.2, 24.4, 3)}${d(-10.4, 26.1, 3)}${d(-9.6, 27.5, 2)}${d(-11.8, 27.5, 2)}${d(-14.6, 24.2, 2)}${d(-9.4, 24.6, 3)}${d(-11, 23.6, 3)}${d(-12.6, 22.9, 3)}</g>`;
   }
 
-  function getCartProduct(id) {
-    return (window.AA?.products || []).find((p) => String(p.id) === String(id)) || (AA.getProduct ? AA.getProduct(id) : null);
-  }
-
-  function render() {
-    const items = AA.cart.items();
-
-    // Empty cart
-    if (!items.length) {
-      root.innerHTML = `
-        ${AA.emptyState({ icon: "cart", title: AA.t("empty.cart.title"), text: AA.t("empty.cart.text"), href: "boutique.html", label: AA.t("cta.continue") })}`;
-      return;
-    }
-
-    const rows = items
-      .map((item) => {
-        const p = getCartProduct(item.id);
-        if (!p) return ""; // Évite tout plantage si un produit n'est plus en stock ou supprimé
-
-        // Sécurisation de l'artisan pour éviter l'erreur TypeError
-        const artisanObj = AA.getArtisan ? AA.getArtisan(p.artisan) : null;
-        const artisanName = artisanObj?.name || p.artisan || p.coop || "Artisan partenaire";
-
-        return `
-        <article class="cart-item">
-          <a href="produit.html?id=${p.id}">${AA.img ? AA.img(p.image, p.name, p.cat) : `<img src="${p.image}" alt="${p.name}">`}</a>
-          <div>
-            <h3><a href="produit.html?id=${p.id}">${AA.esc(p.name)}</a></h3>
-            <p class="card__meta">${AA.esc(artisanName)} · ${p.city || "Sahara"}</p>
-            <p class="card__meta">${AA.formatMAD(p.price)} l'unité</p>
-          </div>
-          <div class="cart-item__right">
-            <strong>${AA.formatMAD(p.price * item.qty)}</strong>
-            <div class="qty">
-              <button type="button" data-minus="${p.id}" aria-label="Diminuer la quantité de ${AA.esc(p.name)}">−</button>
-              <span>${item.qty}</span>
-              <button type="button" data-plus="${p.id}" aria-label="Augmenter la quantité de ${AA.esc(p.name)}">+</button>
-            </div>
-            <button class="link-btn" type="button" data-remove="${p.id}">Supprimer</button>
-          </div>
-        </article>`;
-      })
-      .filter(Boolean)
-      .join("");
-
-    // Calcul dynamique du sous-total compatible avec les prix des nouveaux produits
-    const subtotal = items.reduce((sum, item) => {
-      const p = getCartProduct(item.id);
-      return sum + (p ? p.price * item.qty : 0);
-    }, 0);
-
-    const totalCount = items.reduce((sum, item) => sum + item.qty, 0);
-
-    root.innerHTML = `
-      <div class="cart-layout">
-        <div>
-          ${rows}
-          <div class="hero__actions">
-            <a class="btn btn--outline" href="boutique.html">${AA.icon ? AA.icon("arrowLeft") : "←"}${AA.t ? AA.t("cta.continue") : " Continuer les achats"}</a>
-            <button class="btn btn--outline" type="button" id="clear-cart">Vider le panier</button>
-          </div>
-        </div>
-        <aside class="summary">
-          <h2 style="font-size:1.5rem">Récapitulatif</h2>
-          <div class="price-line"><span>Sous-total (${totalCount} article${totalCount > 1 ? "s" : ""})</span><span>${AA.formatMAD(subtotal)}</span></div>
-          <div class="price-line"><span>Livraison</span><span class="muted">Calculée à l'étape suivante</span></div>
-          <div class="price-line price-line--total"><span>Total</span><span>${AA.formatMAD(subtotal)}</span></div>
-          <a class="btn btn--primary btn--block mt-1" href="checkout.html">Passer à la commande</a>
-          <p class="muted mt-1" style="font-size:.8rem">Démonstration : aucun paiement réel n'est effectué.</p>
-        </aside>
-      </div>`;
-  }
-
-  // Gestion des clics (+, -, supprimer, vider)
-  root.addEventListener("click", (event) => {
-    const plus = event.target.closest("[data-plus]");
-    const minus = event.target.closest("[data-minus]");
-    const remove = event.target.closest("[data-remove]");
-    if (plus || minus) {
-      const id = (plus || minus).dataset.plus || (plus || minus).dataset.minus;
-      const current = AA.cart.items().find((i) => String(i.id) === String(id));
-      if (current) {
-        AA.cart.setQty(id, current.qty + (plus ? 1 : -1));
-      }
-    } else if (remove) {
-      AA.cart.remove(remove.dataset.remove);
-      if (AA.toast) AA.toast("Produit retiré du panier");
-    } else if (event.target.id === "clear-cart") {
-      AA.cart.clear();
-      if (AA.toast) AA.toast("Panier vidé");
-    }
-  });
-
-  document.addEventListener("aa:cart", render);
-  render();
-});
+  return `<svg viewBox="0 0 ${m.w.toFixed(0)} ${m.h.toFixed(0)}" preserveAspectRatio="xMidYMid meet" aria-hidden="true" focusable="false">
+    <defs><clipPath id="landclip"><polygon points="${pts(land)}"/></clipPath></defs>
+    <rect width="${m.w.toFixed(0)}" height="${m.h.toFixed(0)}" fill="#cfe3e6"/>
+    <polygon points="${pts(land)}" fill="#ecd9b0"/>
+    <polyline points="${pts(s.coast)}" fill="none" stroke="#b5532f" stroke-width="${mini ? 5 : 2.4}" stroke-linejoin="round" stroke-linecap="round"/>
+    ${decor}
+  </svg>`;
+};

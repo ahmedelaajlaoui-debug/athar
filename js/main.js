@@ -37,7 +37,10 @@ AA.favs = {
   KEY: "aa_favs",
   all() {
     const data = AA.store.get(this.KEY, {});
-    return { product: data.product || [], artisan: data.artisan || [] };
+    /* ignore ids that no longer exist (a deleted cooperative product, a removed cooperative) so lists and badges stay consistent */
+    const products = (Array.isArray(data.product) ? data.product : []).filter((id) => AA.getProduct(id));
+    const artisans = (Array.isArray(data.artisan) ? data.artisan : []).filter((id) => (AA.hasArtisan ? AA.hasArtisan(id) : true));
+    return { product: products, artisan: artisans };
   },
   has(type, id) {
     return this.all()[type].includes(id);
@@ -55,7 +58,8 @@ AA.favs = {
   },
   count() {
     const data = this.all();
-    return data.product.length + data.artisan.length;
+    // only count items that still exist (a cooperative product may have been deleted)
+    return data.product.filter((id) => AA.getProduct(id)).length + data.artisan.length;
   },
 };
 
@@ -220,12 +224,13 @@ const NAV_LINKS = [
     ],
   },
   {
-    key: "nav.experiences", href: "experiences.html", pages: ["experiences", "expeditions", "impact", "emploi"],
+    key: "nav.experiences", href: "experiences.html", pages: ["experiences", "expeditions", "impact", "emploi", "avis"],
     menu: () => [
       { label: AA.t("menu.exp.workshops"), href: "experiences.html" },
       { label: AA.t("menu.exp.shipping"), href: "expeditions.html" },
       { label: AA.t("menu.exp.impact"), href: "impact.html" },
       { label: AA.t("nav.jobs.menu"), href: "emploi.html" },
+      { label: AA.t("nav.reviews.menu"), href: "avis.html" },
     ],
   },
 ];
@@ -246,6 +251,13 @@ AA.languageSelectorHtml = () => {
     </div>`;
 };
 
+/* Logo + fixed tagline: one builder for header and footer. Never translated (translate="no", lang="fr"). */
+AA.logoHtml = () => `
+        <a class="logo" href="index.html" aria-label="${AA.t("header.home")}">
+          ${AA.logoMark()}
+          <span class="logo__text" translate="no"><span class="logo__word" lang="fr" dir="ltr">${AA.BRAND.name}</span><span class="logo__tag" lang="fr" dir="ltr">${AA.BRAND.taglineLines.map((l) => `<span class="logo__tag-line">${l}</span>`).join(" ")}</span></span>
+        </a>`;
+
 AA.renderHeader = () => {
   const host = document.getElementById("site-header");
   if (!host) return;
@@ -263,10 +275,7 @@ AA.renderHeader = () => {
     <a class="sr-only sr-only--focusable" href="#main">${AA.t("skip")}</a>
     <header class="site-header">
       <div class="container site-header__inner">
-        <a class="logo" href="index.html" aria-label="${AA.t("header.home")}">
-          ${AA.logoMark()}
-          <span class="logo__text"><span class="logo__word">${AA.t("brand.name")}</span><span class="logo__tag">${AA.t("brand.tagline")}</span></span>
-        </a>
+${AA.logoHtml()}
         <nav class="main-nav" id="main-nav" aria-label="${AA.t("nav.aria")}">${navHtml}</nav>
         <div class="header-actions">
           <button class="icon-btn" type="button" id="search-toggle" aria-label="${AA.t("search.open")}" aria-expanded="false" aria-controls="search-bar">${AA.icon("search")}</button>
@@ -370,10 +379,7 @@ AA.renderFooter = () => {
       <div class="container">
         <div class="footer-grid">
           <div>
-            <a class="logo" href="index.html" aria-label="${AA.t("header.home")}">
-              ${AA.logoMark()}
-              <span class="logo__text"><span class="logo__word">${AA.t("brand.name")}</span><span class="logo__tag">${AA.t("brand.tagline")}</span></span>
-            </a>
+${AA.logoHtml()}
             <p class="mt-1">${AA.t("footer.about")}</p>
           </div>
           <div>
@@ -384,6 +390,7 @@ AA.renderFooter = () => {
               <li><a href="artisans.html">${AA.t("nav.artisans")}</a></li>
               <li><a href="experiences.html">${AA.t("nav.experiences")}</a></li>
               <li><a href="emploi.html">${AA.t("footer.jobs")}</a></li>
+              <li><a href="avis.html">${AA.t("footer.reviews")}</a></li>
             </ul>
           </div>
           <div>

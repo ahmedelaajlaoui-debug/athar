@@ -1,258 +1,32 @@
 [
   {
-    "id": 1791858577158,
+    "id": 1001,
     "coopId": "COOP_01",
     "cooperativeName": "Sahara Artisans",
     "city": "Laâyoune",
     "region": "Laâyoune-Sakia El Hamra",
-    "name": "ملحفة صحراوية أصيلة مطروزة بالشواشي",
-    "price": 144,
-    "description": "١",
-    "phone": "212640603618",
-    "images": [
-      "prod_4003010207755_1791858449326_0.jpeg"
-    ],
-    "qrCode": "qr_1791858577158.png",
-    "video": "video_1791858577158.mp4",
-    "stock": null,
-    "status": "EN_ATTENTE_LIVRAISON",
-    "createdAt": "2026-10-13T02:29:37.427Z"
-  },
-  {
-    "id": 1791860292499,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "name": "١",
-    "category": "Melhfa",
-    "price": 134,
-    "description": "صنعة صحراوية تقليدية متقونة وخياطة رفيعة، متوفرة للتوصيل لكافة المدن والدفع عند الاستلام.",
-    "phone": "212640603618",
-    "images": [
-      "prod_4003010207755_1791860060510_0.jpg"
-    ],
-    "qrCode": "qr_1791860292499.png",
-    "video": "video_1791860292499.mp4",
-    "stock": 10,
-    "isNew": true,
-    "status": "DISPONIBLE",
-    "createdAt": "2026-10-13T02:58:12.609Z"
-  },
-  {
-    "id": 1791864953673,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "category": "Bakhour",
-    "price": 13,
-    "stock": 10,
-    "name": "كسكس تقليدي مفتول يدوياً",
+    "name": "Duo de Miels Naturels Marocains (Daghmous et Sidr)",
     "name_i18n": {
-      "fr": "Couscous Traditionnel Fait Main",
-      "ar": "كسكس تقليدي مفتول يدوياً",
-      "en": "Traditional Handmade Couscous"
+      "fr": "Duo de Miels Naturels Marocains (Daghmous et Sidr)",
+      "ar": "ثنائي عسل طبيعي مغربي (عسل الدغموس وعسل السدر)",
+      "en": "Moroccan Natural Honey Duo (Daghmous and Sidr)"
     },
-    "description": "يعكس هذا الكسكس المفتول يدوياً أصالة التراث الغذائي والطبخ التقليدي الأصيل. تم إعداده بعناية فائقة وفق الطرق التقليدية الموروثة ليمنح طعماً فريداً وجودة عالية تتوج الموائد المغربية والأصيلة.",
+    "description": "Assortiment de deux miels naturels d'exception issus du terroir marocain : le miel de Daghmous (euphorbe), réputé pour ses vertus stimulantes et son goût piquant inimitable, et le miel de Sidr (jujubier), réputé pour sa finesse, sa douceur et ses propriétés bienfaisantes.",
     "description_i18n": {
-      "fr": "Issu d'un savoir-faire artisanal transmis de génération en génération, ce couscous roulé à la main incarne la richesse du patrimoine culinaire traditionnel. Préparé avec soin selon des méthodes ancestrales, il offre une texture légère et une qualité supérieure idéale pour les repas de fête.",
-      "ar": "يعكس هذا الكسكس المفتول يدوياً أصالة التراث الغذائي والطبخ التقليدي الأصيل. تم إعداده بعناية فائقة وفق الطرق التقليدية الموروثة ليمنح طعماً فريداً وجودة عالية تتوج الموائد المغربية والأصيلة.",
-      "en": "Crafted using time-honored artisanal techniques, this handmade couscous reflects the rich traditional culinary heritage. Carefully rolled by hand, it delivers an authentic flavor and delicate texture perfect for traditional celebratory dishes."
-    },
-    "phone": "212640603618",
-    "images": [
-      "prod_4003010207755_1791864802872_0.jpg"
-    ],
-    "qrCode": "qr_1791864953673.png",
-    "video": "video_1791864953673.mp4",
-    "isNew": true,
-    "status": "DISPONIBLE",
-    "createdAt": "2026-10-13T04:15:53.768Z"
-  },
-  {
-    "id": 9596,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "category": "Autre",
-    "price": 24,
-    "stock": 1,
-    "name": "وثيقة تعليمية لأوامر نظام لينكس",
-    "name_i18n": {
-      "fr": "Support de cours / Commandes Linux",
-      "ar": "وثيقة تعليمية لأوامر نظام لينكس",
-      "en": "Educational Linux Commands Sheet"
-    },
-    "description": "تُظهر هذه الصورة لقطة شاشة تتضمن ملاحظات تعليمية حول أوامر سطر الأوامر في نظام لينكس، مع نافذة طرفية في الأسفل. لا تمثل هذه الصورة أي منتج من منتجات الصناعة التقليدية أو التراث المغربي.",
-    "description_i18n": {
-      "fr": "Cette image présente une capture d'écran contenant des notes de cours sur des commandes système Linux ainsi qu'un terminal Ubuntu. Elle ne correspond à aucun produit de l'artisanat ou du patrimoine marocain.",
-      "ar": "تُظهر هذه الصورة لقطة شاشة تتضمن ملاحظات تعليمية حول أوامر سطر الأوامر في نظام لينكس، مع نافذة طرفية في الأسفل. لا تمثل هذه الصورة أي منتج من منتجات الصناعة التقليدية أو التراث المغربي.",
-      "en": "This image shows a screen capture displaying educational notes regarding Linux terminal commands along with an active Ubuntu terminal window. It does not depict any Moroccan handcrafted or heritage artifact."
-    },
-    "phone": "212640603618",
-    "images": [
-      "prod_4003010207755_1791940373573_0.jpg",
-      "prod_4003010207755_1791940374477_1.jpg",
-      "prod_4003010207755_1791940374820_2.jpg"
-    ],
-    "qrCode": "qr_9596.png",
-    "video": "video_9596.mp4",
-    "isNew": true,
-    "status": "DISPONIBLE",
-    "createdAt": "2026-10-14T01:13:54.201Z"
-  },
-  {
-    "id": 9586,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "category": "Melhfa",
-    "price": 13,
-    "stock": 1,
-    "name": "الملحفة الصحراوية التقليدية",
-    "name_i18n": {
-      "fr": "Melhfa Sahraouie Traditionnelle",
-      "ar": "الملحفة الصحراوية التقليدية",
-      "en": "Traditional Saharan Melhfa"
-    },
-    "description": "رمز أصيل للأناقة والجمال في الصحراء المغربية، يتميز هذا الثوب التراثي بخفته وانسيابيته التي تلائم مناخ المنطقة. تعكس ألوانه وزخارفه التقليدية عراقة التراث الحساني ومهارة الصانع التقليدي عبر الأجيال.",
-    "description_i18n": {
-      "fr": "Symbole emblématique de la féminité et de l'élégance dans le Sahara marocain, ce voile fluide et vaporeux allie confort thermique et raffinement. Ses motifs artisanaux et ses teintes éclatantes incarnent l'authenticité d'un savoir-faire ancestral préservé avec fierté.",
-      "ar": "رمز أصيل للأناقة والجمال في الصحراء المغربية، يتميز هذا الثوب التراثي بخفته وانسيابيته التي تلائم مناخ المنطقة. تعكس ألوانه وزخارفه التقليدية عراقة التراث الحساني ومهارة الصانع التقليدي عبر الأجيال.",
-      "en": "An iconic symbol of feminine elegance in the Moroccan Sahara, this flowing and lightweight wrap offers both supreme comfort and refined style. Its traditional patterns and vibrant colors proudly showcase the timeless heritage of authentic Saharan craftsmanship."
-    },
-    "phone": "212640603618",
-    "images": [
-      "prod_4003010207755_1791943031911_0.jpg"
-    ],
-    "qrCode": "qr_9586.png",
-    "video": "video_9586.mp4",
-    "isNew": true,
-    "status": "DISPONIBLE",
-    "createdAt": "2026-10-14T01:58:25.697Z"
-  },
-  {
-    "id": 1284,
-    "coopId": "COOP_06",
-    "cooperativeName": "Coopérative Khawla",
-    "city": "Taza",
-    "region": "Fès-Meknès",
-    "category": "Bijoux",
-    "price": 23000,
-    "stock": 1,
-    "name": "إطار نظارات بتصميم معدني أنيق",
-    "name_i18n": {
-      "fr": "Monture fine d'inspiration artisanale",
-      "ar": "إطار نظارات بتصميم معدني أنيق",
-      "en": "Artisanal-Inspired Fine Metal Eyewear Frame"
-    },
-    "description": "يتميز هذا الإطار المعدني الخفيف بدقة التصميم وبساطته العصرية مع الحفاظ على متانة الصنع. قطعة عملية وأنيقة تناسب الإطلالات اليومية بلمسة من الرقي والحرفية.",
-    "description_i18n": {
-      "fr": "Cette monture épurée en métal allie finesse contemporaine et précision artisanale. Légère et résistante, elle met en valeur un travail soigné du métal pour un style sobre et intemporel.",
-      "ar": "يتميز هذا الإطار المعدني الخفيف بدقة التصميم وبساطته العصرية مع الحفاظ على متانة الصنع. قطعة عملية وأنيقة تناسب الإطلالات اليومية بلمسة من الرقي والحرفية.",
-      "en": "Featuring a minimalist metal silhouette, this lightweight frame reflects careful craftsmanship and durability. Its sleek contours offer both timeless elegance and everyday comfort."
-    },
-    "phone": "212600000000",
-    "images": [
-      "prod_185298478706709_1791982321641_0.jpg"
-    ],
-    "qrCode": "qr_1284.png",
-    "video": "video_1284.mp4",
-    "isNew": true,
-    "status": "DISPONIBLE",
-    "createdAt": "2026-10-14T12:54:33.315Z"
-  },
-  {
-    "id": 9597,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "name": "١",
-    "name_i18n": {
-      "fr": "Couscous artisanal traditionnel",
-      "ar": "كسكس مغربي تقليدي عالي الجودة",
-      "en": "Traditional Artisanal Moroccan Couscous"
-    },
-    "description": "١",
-    "description_i18n": {
-      "fr": "Couscous de haute qualité façonné selon le savoir-faire culinaire traditionnel marocain. Idéal pour préparer des plats authentiques, il offre une texture légère et aérée qui sublime toutes vos recettes.",
-      "ar": "كسكس مغربي أصيل عالي الجودة، مبروم بعناية وفق التقاليد المغربية العريقة، يتميز بقوام خفيف ونكهة فريدة تلائم تحضير أشهى الأطباق والمناسبات العائلية.",
-      "en": "Premium quality Moroccan couscous crafted according to authentic culinary traditions. Its light and fluffy texture makes it perfect for delicious, authentic home-cooked meals."
-    },
-    "price": 13,
-    "category": "Autre",
-    "stock": 1,
-    "status": "DISPONIBLE",
-    "images": [
-      "p_1792024504236_2101.jpg"
-    ],
-    "video": "video_9597.mp4",
-    "qrCode": "qr_9597.png",
-    "lang": "fr",
-    "createdAt": "2026-10-15T00:36:04.549Z"
-  },
-  {
-    "id": 9598,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "name": "مسحوق عناية تجميلي طبيعي",
-    "name_i18n": {
-      "fr": "Poudre de soin cosmétique naturelle",
-      "ar": "مسحوق عناية تجميلي طبيعي",
-      "en": "Natural Herbal Cosmetic Powder"
-    },
-    "description": "مستحضر تجميلي طبيعي على شكل مسحوق ناعم معبأ في كيس محكم الإغلاق لحفظ الجودة. مثالي لتحضير الأقنعة الطبيعية وتغذية البشرة وتنقيتها بلمسة تقليدية أصيلة.",
-    "description_i18n": {
-      "fr": "Un soin cosmétique artisanal sous forme de poudre naturelle, présenté dans un sachet refermable hermétique. Idéal pour les masques de beauté traditionnels, purifiant et illuminant le teint naturellement.",
-      "ar": "مستحضر تجميلي طبيعي على شكل مسحوق ناعم معبأ في كيس محكم الإغلاق لحفظ الجودة. مثالي لتحضير الأقنعة الطبيعية وتغذية البشرة وتنقيتها بلمسة تقليدية أصيلة.",
-      "en": "Artisanal natural cosmetic powder presented in a practical resealable stand-up pouch. Perfect for traditional facial masks, offering gentle cleansing and a natural radiance."
-    },
-    "price": 134,
-    "category": "Autre",
-    "stock": 1,
-    "status": "DISPONIBLE",
-    "images": [
-      "p_1792027702284_8831.jpg"
-    ],
-    "video": "video_9598.mp4",
-    "qrCode": "qr_9598.png",
-    "lang": "fr",
-    "createdAt": "2026-10-15T01:29:05.676Z"
-  },
-  {
-    "id": 9599,
-    "coopId": "COOP_01",
-    "cooperativeName": "Sahara Artisans",
-    "city": "Laâyoune",
-    "region": "Laâyoune-Sakia El Hamra",
-    "name": "مسحوق عناية تجميلي طبيعي",
-    "name_i18n": {
-      "fr": "Poudre de soin cosmétique naturelle",
-      "ar": "مسحوق عناية تجميلي طبيعي",
-      "en": "Natural Herbal Cosmetic Powder"
-    },
-    "description": "مستحضر عناية طبيعي وأصيل معبأ في كيس محكم الإغلاق للحفاظ على جودته. مثالي لتحضير أقنعة الوجه والجسم التقليدية، يمنح البشرة النقاء والنعومة والنضارة.",
-    "description_i18n": {
-      "fr": "Soin naturel authentique présenté dans un sachet refermable hermétique. Idéal pour la préparation de masques traditionnels pour le visage ou le corps, apportant douceur, éclat et pureté à la peau.",
-      "ar": "مستحضر عناية طبيعي وأصيل معبأ في كيس محكم الإغلاق للحفاظ على جودته. مثالي لتحضير أقنعة الوجه والجسم التقليدية، يمنح البشرة النقاء والنعومة والنضارة.",
-      "en": "Authentic natural cosmetic powder packaged in a resealable stand-up pouch. Perfect for traditional body and facial masks, providing nourishment, purity, and a natural radiant glow."
+      "fr": "Assortiment de deux miels naturels d'exception issus du terroir marocain : le miel de Daghmous (euphorbe), réputé pour ses vertus stimulantes et son goût piquant inimitable, et le miel de Sidr (jujubier), réputé pour sa finesse, sa douceur et ses propriétés bienfaisantes.",
+      "ar": "تشكيلة من أجود أنواع العسل الطبيعي المستخلص من الطبيعة المغربية: عسل الدغموس الأصيل المعروف بفوائده العلاجية ونكهته الدافئة والفريدة، وعسل السدر الفاخر الغني بمذاقه اللذيذ وقيمته الغذائية العالية.",
+      "en": "An authentic duo of natural Moroccan honey: Daghmous (Euphorbia) honey, renowned for its distinct warming taste and health benefits, paired with rich Sidr (Jujube) honey, celebrated for its smooth sweetness and premium quality."
     },
     "price": 12,
     "category": "Autre",
-    "stock": 25,
+    "stock": 1,
     "status": "DISPONIBLE",
     "images": [
-      "p_1792029358097_7227.jpg"
+      "p_1792489897836_3537.jpg"
     ],
-    "video": "video_9599.mp4",
-    "qrCode": "qr_9599.png",
+    "video": "video_1001.mp4",
+    "qrCode": "qr_1001.png",
     "lang": "fr",
-    "createdAt": "2026-10-15T01:56:42.482Z"
+    "createdAt": "2026-10-20T09:52:14.978Z"
   }
 ]

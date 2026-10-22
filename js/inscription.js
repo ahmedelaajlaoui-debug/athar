@@ -117,6 +117,9 @@ document.addEventListener("DOMContentLoaded", () => {
     history.pushState(null, "", hash);
     show(role);
   };
+  // "continue as a visitor": the interface switches to the public visitor role (nothing is deleted)
+  const visitorLink = document.getElementById("visitor-link");
+  if (visitorLink) visitorLink.addEventListener("click", () => { AA.account.setRole("visitor"); });
   chooser.querySelectorAll("[data-role]").forEach((btn) => btn.addEventListener("click", () => go(btn.dataset.role)));
   document.getElementById("role-back").addEventListener("click", () => go(""));
   window.addEventListener("popstate", () => show(location.hash.slice(1)));
@@ -269,8 +272,14 @@ document.addEventListener("DOMContentLoaded", () => {
     const name = role === "coop" ? val(form, "name") : val(form, "email").split("@")[0];
     // Only non-sensitive demo details are kept. NEVER the password, and not the image.
     const account = { type: role, name, email: val(form, "email"), created: new Date().toISOString(), demo: true };
-    if (role === "coop") Object.assign(account, { city: val(form, "city"), category: val(form, "category") });
+    if (role === "coop") Object.assign(account, { city: val(form, "city"), category: val(form, "category"), description: val(form, "description").slice(0, 600) });
     if (role === "job") Object.assign(account, { region: val(form, "region"), interests: [...form.querySelectorAll("input[name=interests]:checked")].map((i) => i.value) });
+    if (role === "coop") {
+      // same e-mail as a demo cooperative already in this browser: reuse it instead of creating a duplicate
+      const known = Object.values(AA.coop.coops()).find((c) => c && c.id && String(c.email || "").toLowerCase() === account.email.toLowerCase());
+      if (known) account.coopId = known.id;
+    }
+    if (role === "coop") AA.coop.saveAccount(account); // also kept under its own key: registering another role later never detaches its products
     AA.store.set("aa_demo_account", account);
     AA.store.set("aa_profile", { name, email: account.email });
     AA.account.clearRole(); // a new demo account shows its own role (Account Phase 3)

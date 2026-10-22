@@ -15,7 +15,7 @@
    - No password is ever stored. Nothing is sent anywhere. One browser, one device.
    ========================================================== */
 (() => {
-  const KEYS = { account: "aa_demo_account", role: "aa_demo_role", client: "aa_client_profile", job: "aa_job_profile" };
+  const KEYS = { account: "aa_demo_account", role: "aa_demo_role", client: "aa_client_profile", job: "aa_job_profile", apps: "aa_applications" };
   const ROLES = ["visitor", "client", "job", "coop"];
 
   /* ----- shared texts (menus, footer, role names) ----- */
@@ -30,6 +30,7 @@
     "acc.menu.profile": ["Mon profil", "My profile", "ملفي الشخصي"],
     "acc.menu.shop": ["Parcourir la boutique", "Browse the shop", "تصفح المتجر"],
     "acc.menu.coops": ["Coopératives et artisans", "Cooperatives and artisans", "التعاونيات والحرفيون"],
+    "acc.menu.apps": ["Mes candidatures", "My applications", "طلباتي"],
     "acc.menu.jobs": ["Offres d'emploi", "Job offers", "عروض الشغل"],
     "acc.menu.dash": ["Tableau de bord coopérative", "Cooperative dashboard", "لوحة تحكم التعاونية"],
     "acc.menu.products": ["Mes produits", "My products", "منتجاتي"],
@@ -80,6 +81,29 @@
     };
   };
 
+  /* ----- demo job applications (FRONTEND ONLY) -----
+     Saved in localStorage (aa_applications) in THIS browser only. They are never sent to the cooperative or anywhere else.
+     Stored: applicant name, e-mail, optional phone, skills / experience / motivation text typed by the user. NEVER a password.
+     "Same demo applicant" = the demo job-seeker account e-mail (or the profile e-mail): one application per job per applicant. */
+  const applications = () => {
+    const a = read(KEYS.apps, []);
+    return Array.isArray(a) ? a.filter((x) => x && typeof x === "object" && typeof x.jobId === "string" && typeof x.id === "string") : [];
+  };
+  const applicantKey = () => {
+    const a = account();
+    const p = asObj(read("aa_profile", {}));
+    return String((a && a.type === "job" && a.email) || p.email || "demo").trim().toLowerCase();
+  };
+  const myApplications = () => applications().filter((x) => x.applicant === applicantKey());
+  const hasApplied = (jobId) => myApplications().some((x) => x.jobId === jobId);
+  /* returns the saved record, null if this applicant already applied to this job, false if the browser storage refused the write */
+  const addApplication = (rec) => {
+    if (hasApplied(rec.jobId)) return null;
+    const item = { ...rec, id: "ap_" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), applicant: applicantKey(), date: new Date().toISOString(), status: "demo" };
+    return write(KEYS.apps, [item, ...applications()].slice(0, 60)) ? item : false;
+  };
+  const removeApplication = (id) => write(KEYS.apps, applications().filter((x) => x.id !== id));
+
   /* Does a job ad fit the saved job-seeker preferences? (region "any"/empty = no region filter; no interests = no field filter) */
   const hasJobPrefs = (p = jobProfile()) => Boolean((p.region && p.region !== "any") || p.interests.length);
   const jobMatches = (job, p = jobProfile()) =>
@@ -89,7 +113,7 @@
   const ITEMS = {
     visitor: [["user", "acc.menu.visitor", "profil.html"], ["userPlus", "acc.menu.register", "inscription.html"]],
     client: [["user", "acc.menu.profile", "profil.html"], ["heart", "fav.link", "favoris.html"], ["cart", "cart.link", "panier.html"], ["bag", "acc.menu.shop", "boutique.html"], ["users", "acc.menu.coops", "artisans.html"]],
-    job: [["user", "acc.menu.profile", "profil.html"], ["briefcase", "acc.menu.jobs", "emploi.html"]],
+    job: [["user", "acc.menu.profile", "profil.html"], ["briefcase", "acc.menu.jobs", "emploi.html"], ["checkCircle", "acc.menu.apps", "profil.html#apps"]],
     coop: [["dashboard", "acc.menu.dash", "cooperative.html"], ["box", "acc.menu.products", "cooperative.html#products"], ["briefcase", "acc.menu.myjobs", "cooperative.html#jobs"], ["user", "acc.menu.profile", "profil.html"]],
   };
   const menuItems = (r = role()) => (ITEMS[r] || ITEMS.visitor).map(([icon, key, href]) => ({ icon, key, href, label: AA.t(key) }));
@@ -150,6 +174,7 @@
 
   AA.account = {
     KEYS, ROLES, read, write, remove, account, role, setRole, clearRole, clientProfile, jobProfile,
+    applications, myApplications, hasApplied, addApplication, removeApplication, applicantKey,
     hasJobPrefs, jobMatches, menuItems, roleLabel, menuHtml, bindMenu, footerLinks, refresh,
   };
 })();

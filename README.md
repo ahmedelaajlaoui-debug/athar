@@ -71,7 +71,7 @@ Fichiers ajoutés par rapport à la liste de départ : `icons.js`, `translations
 
 ## Données enregistrées dans le navigateur (localStorage)
 
-`aa_favs`, `aa_cart`, `aa_orders`, `aa_requests`, `aa_passports`, `aa_profile`, `aa_lang` (langue choisie : `fr`, `ar` ou `en`), et depuis les comptes : `aa_demo_account`, `aa_coops`, `aa_coop_products`, `aa_coop_jobs` (voir « Comptes — Phase 2 »).
+`aa_favs`, `aa_cart`, `aa_orders`, `aa_requests`, `aa_passports`, `aa_profile`, `aa_lang` (langue choisie : `fr`, `ar` ou `en`), et depuis les comptes : `aa_demo_account`, `aa_demo_role`, `aa_coop_account`, `aa_coops`, `aa_coop_products`, `aa_coop_jobs`, `aa_client_profile`, `aa_job_profile`, `aa_applications` (voir « Comptes — Phase 4/4 » et « Candidatures de démonstration » pour le détail et les limites).
 Le bouton « Effacer les données de démo » du profil les supprime.
 
 ## Langues (français, arabe RTL, anglais)
@@ -84,7 +84,7 @@ Le bouton « Effacer les données de démo » du profil les supprime.
 
 ## Identité visuelle
 
-- Nom : **ATHAR** (أثر en arabe). Logo : étoile à 8 branches (khatem) en vert, arc en fer à cheval et ligne de dune, couleurs du site (`assets/icons/`).
+- Nom : **ATHAR**, écrit en lettres latines dans les trois langues (voir « Identité de marque » ci-dessous). Logo : étoile à 8 branches (khatem) en vert, arc en fer à cheval et ligne de dune, couleurs du site (`assets/icons/`).
 - Icônes : `AA.icon("nom")` en JS, ou `<span data-icon="nom"></span>` en HTML (liste dans `icons.js`). Plus aucun emoji décoratif dans le site.
 - Les clés `localStorage` (`aa_*`) et l'objet JavaScript `AA` gardent leur nom d'origine pour ne pas perdre les données déjà enregistrées.
 
@@ -224,7 +224,7 @@ Aucune page publique n'exige un compte et aucune fenêtre d'inscription n'appara
 ### Limites honnêtes (à lire)
 - **Les rôles et les données de compte sont des démonstrations.** Il n'y a pas d'authentification sécurisée, pas de backend, pas de base de données, pas de synchronisation entre appareils.
 - **Le rôle ne protège rien** : il ne change que les liens et écrans affichés. N'importe qui peut ouvrir une page par son adresse ou modifier `localStorage` avec les outils du navigateur. De vrais contrôles d'accès demandent un serveur.
-- **Aucune candidature** n'est envoyée ni enregistrée : il n'existe pas de formulaire de candidature. Le chercheur d'emploi contacte lui-même la coopérative via les liens affichés (email / WhatsApp) quand ils existent. ATHAR ne sait pas si un message a été envoyé ou lu.
+- **Candidatures (mise à jour « Postuler »)** : le rôle Chercheur d'emploi peut remplir un formulaire de candidature de **démonstration** (voir la section « Candidatures de démonstration » plus bas). Elle reste dans ce navigateur et n'est jamais envoyée à la coopérative.
 - Les préférences du chercheur d'emploi servent uniquement à filtrer les offres dans ce navigateur ; elles ne sont transmises à aucune coopérative.
 - Le panier du profil réutilise le panier existant ; aucun paiement ni achat n'est réalisé. L'ancien onglet « Commandes » du profil a été retiré de l'interface (les clés `aa_orders` restent lisibles par `checkout.html` comme avant).
 - Les icônes du header Favoris et Panier restent visibles pour tous les rôles (la boutique est publique).
@@ -233,4 +233,119 @@ Aucune page publique n'exige un compte et aucune fenêtre d'inscription n'appara
 ### Tests effectués (navigateur Chromium automatisé, sans accès aux images externes)
 Navigation visiteur sur 7 pages publiques ; changement de rôle ; modification et persistance du profil client (validation d'email) ; favoris (ajout/retrait) ; panier (quantités, suppression, badge) ; profil chercheur d'emploi (compétences sans doublon, région, domaines, expérience, persistance) ; offres correspondant au profil ; recherche mot-clé / région / domaine / état vide ; page de détail et offre introuvable ; liens email et WhatsApp valides et absence de lien si la coordonnée est invalide ou non publiée ; tableau de bord coopérative (profil, offres, produit, liens de menu avec ancre, produit visible dans la boutique, données intactes après changement de rôle) ; inscriptions client et chercheur d'emploi (aucun mot de passe dans localStorage) ; débordement horizontal à 375 px en français et en arabe (RTL) ; syntaxe de tous les fichiers JS (`node --check`) ; liens internes.
 **Non testés :** Firefox et Safari, vrais appareils mobiles, lecteurs d'écran, relecture de l'arabe par un locuteur natif, ouverture de WhatsApp / du client mail (seul le lien généré est vérifié), chargement des photos Unsplash (pas d'internet dans l'environnement de test).
-Phase 4/4 (intégration finale) : **non commencée**.
+
+## Comptes — Phase 4/4 : intégration finale, rôles et tests (démonstration frontend)
+
+> **À lire d'abord.** Les comptes, la « connexion », les rôles, les permissions et la « publication » de ce projet sont des **démonstrations dans le navigateur**. Ce ne sont **pas** des services multi-utilisateurs sécurisés. Une vraie authentification, une vraie autorisation et des données partagées et durables demandent un **backend (serveur + base de données)**, ce qui est hors du périmètre de ce devoir.
+
+### Ouvrir et lancer le projet en local
+1. Décompressez `ATHAR_Branding_Phase2.zip` : le dossier `athar/` contient `index.html` à sa racine.
+2. **Le plus simple :** double-cliquez sur `index.html` (testé en `file://` dans Chromium).
+3. **Recommandé :** un petit serveur local.
+   ```bash
+   cd athar
+   python3 -m http.server 8000
+   # puis ouvrez http://localhost:8000
+   ```
+4. Aucune installation, aucun build. Internet n'est utile que pour les photos et polices externes ; sans lui, des illustrations de remplacement s'affichent.
+
+### Rôles de démonstration et fonctions disponibles
+| Rôle | Comment l'obtenir | Ce que la démo permet | Navigation affichée |
+|---|---|---|---|
+| **Visiteur** | aucune inscription | parcourir toutes les pages publiques (accueil, Explorer, régions, patrimoine, coopératives/artisans, boutique, produits, expériences, expéditions, offres d'emploi, favoris, panier) ; s'inscrire est facultatif | choix d'un rôle de démo, inscription facultative |
+| **Coopérative** | `inscription.html#coop` ou « Ouvrir une coopérative de démo » | modifier **son** profil, créer / modifier / supprimer **ses** produits (affichés dans la Boutique, étiquette « Démo coopérative ») et **ses** offres d'emploi (affichées dans `emploi.html`) | tableau de bord, produits, offres, profil |
+| **Client** | `inscription.html#client` | profil, favoris, panier, boutique | profil, favoris, panier |
+| **Chercheur d'emploi** | `inscription.html#job` | profil, compétences et préférences, recherche et filtres des offres, page de détail, **bouton Postuler**, **Mes candidatures** | profil, offres d'emploi, mes candidatures |
+
+- `inscription.html` propose les trois comptes et un lien « continuer en visiteur ». Chaque inscription valide mène à l'interface de son rôle (confirmation avec liens adaptés).
+- Une page réservée à un autre rôle (par exemple `cooperative.html` quand le rôle affiché est « Client ») n'affiche pas le tableau de bord mais propose de repasser au rôle Coopérative. Rien n'est supprimé.
+- Les boutons Modifier / Supprimer n'existent que dans le tableau de bord de la coopérative, et ne concernent que **les éléments de cette coopérative** (filtrés par `ownerId`). Dans `emploi.html`, le lien « Gérer mes offres » n'apparaît que pour le rôle Coopérative et seulement sur ses propres annonces.
+- Les icônes Favoris et Panier du header restent visibles pour tous les rôles, car la boutique est publique.
+
+### Données pouvant être enregistrées dans le navigateur (localStorage)
+Uniquement des données de démonstration **non sensibles**, sur cet appareil et ce navigateur, jamais envoyées nulle part :
+
+| Clé | Contenu |
+|---|---|
+| `aa_demo_account`, `aa_coop_account` | type de compte, nom, email, date, ville/catégorie/description de la coopérative, identifiant de coopérative |
+| `aa_demo_role` | rôle affiché |
+| `aa_coops` | profils de coopératives de démo (nom, email, WhatsApp, région, catégorie, description, logo) |
+| `aa_coop_products`, `aa_coop_jobs` | produits et annonces créés (avec `ownerId`) |
+| `aa_client_profile`, `aa_job_profile`, `aa_profile` | préférences et compétences saisies |
+| `aa_applications` | candidatures de démonstration (nom, email, téléphone facultatif, compétences, expérience, message de motivation, date) |
+| `aa_favs`, `aa_cart`, `aa_orders`, `aa_requests`, `aa_passports`, `aa_lang` | favoris, panier, simulations de commande et de demande, passeports, langue |
+
+- **Aucun mot de passe n'est stocké** : il est vérifié dans le formulaire puis jeté. Un test automatisé vérifie son absence de `localStorage`.
+- Utilisez de préférence des données fictives. Les logos et images ajoutés sont enregistrés dans le navigateur (taille limitée).
+- « Effacer les données de démo » (profil, y compris les candidatures) et « Réinitialiser » (tableau de bord) suppriment ces données.
+
+### Limites : ce qui n'est PAS réel
+- **Pas d'authentification sécurisée.** Aucun mot de passe n'est vérifié ensuite ; il n'y a pas de session ni de « connexion ».
+- **Pas d'autorisation sécurisée.** Les contrôles par rôle ne font que **masquer ou afficher des liens et écrans**. Ils n'empêchent ni l'ouverture d'une page par son adresse, ni la modification de `localStorage` avec les outils du navigateur. Ils ne protègent rien ; ne les présentez pas comme une sécurité.
+- **Pas de « publication » réelle.** Un produit ou une offre créé n'existe que dans le navigateur qui l'a créé : un autre visiteur ou un autre appareil ne le verra pas.
+- **Paiement, commandes et candidatures ne sont pas réels.** `checkout.html` est une **simulation** : aucun paiement, aucune commande transmise à une coopérative, aucun colis (références « DEMO-… »). Les demandes d'expérience restent dans le navigateur. Le formulaire « Postuler » est une **candidature de démonstration** enregistrée uniquement dans ce navigateur : **aucune coopérative ni aucun employeur ne la reçoit**, et aucun message n'est envoyé. Pour réellement postuler, le chercheur d'emploi contacte lui-même la coopérative par email/WhatsApp si la coordonnée a été publiée. Ces fonctions ne doivent être présentées comme de vraies transactions que si un vrai backend les réalise.
+- Les annonces d'exemple n'ont aucune coordonnée de contact ; les contacts n'apparaissent que si la coopérative les a saisis et publiés dans la démo.
+
+### Cohérence des données (Phase 4/4)
+- Une inscription coopérative avec un **email déjà connu** dans ce navigateur réutilise la coopérative existante (pas de doublon, produits et offres conservés) ; la description saisie à l'inscription préremplit le profil.
+- Supprimer un produit le retire aussi des favoris et du panier ; un favori orphelin n'est plus compté dans le badge.
+- Le curseur de prix de la Boutique s'adapte au produit le plus cher : un produit de démo à 4 800 MAD n'est plus masqué par défaut. Les produits de démo apparaissent en tête de liste.
+- La confirmation de `checkout.html` est reformulée en simulation (plus de lien vers l'ancien onglet « Commandes »).
+
+### Tests effectués (Chromium automatisé via Playwright, sans accès à Internet)
+69 vérifications de bout en bout réussies, plus vérifications complémentaires, dont : navigation visiteur sur 16 pages publiques sans redirection ; choix du compte et validation des inscriptions (champs vides, email invalide) ; absence de mot de passe dans `localStorage` ; menus propres à chaque rôle ; édition du profil coopérative (et rejet d'un nom vide) ; produit : création, modification, suppression, affichage dans la Boutique, page de détail ; offre d'emploi : création, modification, suppression, affichage dans `emploi.html`, page de détail, liens `mailto:` / `wa.me` valides, offre supprimée = état « introuvable » ; favoris et panier du client, badges ; nettoyage des favoris/panier après suppression ; inscription répétée avec le même email ; recherche et filtres d'emploi (mot-clé, région, domaine, correspondance au profil, état vide) ; lien carte produit → détail ; absence de débordement horizontal à 375 px en français, anglais et arabe (RTL) sur les pages de compte, et exploration des pages × 4 rôles × 3 langues sans erreur JavaScript ; ouverture en `file://` ; syntaxe de tous les fichiers JS (`node --check`) ; liens internes (0 cassé).
+
+**Non testés / à vérifier :** Firefox et Safari ; vrais appareils mobiles ; lecteurs d'écran ; relecture de l'arabe par un locuteur natif ; ouverture réelle de WhatsApp ou du client mail (seul le lien généré est vérifié) ; chargement des photos externes (pas d'Internet dans l'environnement de test) ; envoi d'images volumineuses en logo/produit. `checkout.html` reste en français uniquement (non traduit avant cette phase).
+
+## Candidatures de démonstration (« Postuler », « Mes candidatures »)
+
+> **Démonstration frontend uniquement.** Une candidature est enregistrée dans le `localStorage` de **ce navigateur**. Elle **n'est pas transmise** à la coopérative ni à un employeur réel : il n'y a pas de backend, pas d'email envoyé, pas de tableau de bord de réception côté coopérative. Pour postuler pour de vrai, il faut contacter la coopérative via les coordonnées affichées (si elle en a publié).
+
+**Ce que fait la démo (rôle Chercheur d'emploi uniquement) :**
+- Un bouton **Postuler / Apply now / التقدم للوظيفة** apparaît sur chaque offre (offres d'exemple et offres créées depuis un tableau de bord coopérative) et sur la page de détail.
+- Il ouvre un formulaire : nom, email, téléphone (facultatif), compétences, niveau et description d'expérience, message de motivation (30 à 1 000 caractères), et une case de compréhension « démo, non transmise ». Les champs sont préremplis depuis le compte/profil de démo ; tous les champs obligatoires sont validés (messages en français, anglais et arabe).
+- À la validation : message de confirmation indiquant que la candidature **n'a pas été transmise**.
+- L'onglet **Mes candidatures / My applications / طلباتي** du profil (et le lien du menu) liste les candidatures, avec la mention « Démo — non transmise », le lien vers l'offre, et un bouton **Retirer** (qui permet de postuler à nouveau).
+- **Pas de doublon** : un même candidat de démo (identifié par l'email du compte de démo, ou à défaut du profil) ne peut postuler qu'une fois par offre ; l'offre affiche ensuite « Déjà postulé ». La protection s'applique aussi si le formulaire est resté ouvert dans un autre onglet.
+- Les autres rôles (visiteur, client, coopérative) ne voient ni bouton ni formulaire. Il s'agit d'un affichage, pas d'une protection : voir la limite sur les rôles ci-dessus.
+- Si une offre est supprimée par la coopérative, la candidature reste visible dans « Mes candidatures » avec la mention « cette offre n'existe plus ».
+
+**Données :** `aa_applications` contient ce que l'utilisateur a saisi dans le formulaire (nom, email, téléphone facultatif, compétences, expérience, message). **Aucun mot de passe n'est jamais stocké.** Utilisez des informations fictives. Au maximum 60 candidatures sont conservées ; « Effacer les données de démo » les supprime.
+
+**Tests effectués (Chromium automatisé, Playwright) :** 39 vérifications dédiées, toutes réussies (bouton visible sur chaque carte, formulaire, 7 validations, enregistrement local, absence de mot de passe, confirmation, doublon par rechargement / API / second onglet, onglet « Mes candidatures », retrait puis nouvelle candidature, offre créée par une coopérative, offre supprimée, effacement des données, textes FR / EN / AR, absence de débordement à 375 px, RTL), plus la suite de non-régression de la Phase 4/4 (69 vérifications) et l'exploration des pages sans erreur JavaScript.
+**Non testés :** Firefox, Safari, appareils mobiles réels, lecteurs d'écran, relecture de l'arabe par un locuteur natif.
+
+## Mise à jour : Explorer, Patrimoine et annuaire des coopératives
+
+- **Un seul annuaire** (`js/directory.js`, `AA.dir`) alimente l'Explorer, la page Patrimoine et l'accueil. Il lit les profils enregistrés par l'espace coopérative (`aa_coops`) à chaque affichage : une modification dans le tableau de bord apparaît partout. Les fiches de démonstration sont dérivées des artisans fictifs de `data.js` (une fiche par nom de coopérative) et sont clairement marquées « fiche de démonstration ». **Aucune coopérative n'est vérifiée** ; aucune adresse, aucun téléphone, aucun e-mail réel n'est inventé.
+- **Explorer** : la carte reste illustrée (SVG). Le zoom (boutons +/−, clic sur un repère ou une carte de ville) agrandit simplement le dessin et se déplace en le faisant glisser ; il n'y a ni service de carte ni donnée géographique en ligne. Les cartes de ville sont cliquables (plus de bouton « Découvrir la région »). Le panneau affiche la description de la ville, ses coopératives (cartes cliquables vers la fiche) et ses artisans, ou un message clair s'il n'y en a pas.
+- **Patrimoine** : annuaire filtrable (recherche, ville, savoir-faire) ; fiche détaillée via `patrimoine.html?coop=<id>#cooperative` (produits liés à la boutique, équipe si disponible) ; cinq savoir-faire reliés à l'annuaire et à la boutique ; section « Saviez-vous ? » (6 repères). Les anciens articles ont été retirés de cette page.
+- **Accueil** : la section « Lire, comprendre, partager » (patrimoine) est supprimée ; elle est remplacée par un aperçu de 3 coopératives. « Les histoires du territoire » se trouvait sur la page Explorer (pas sur l'accueil) et a été supprimée.
+- **Espace coopérative** : nouvelle case, décochée par défaut, pour afficher e-mail et WhatsApp sur la fiche publique ; sinon les coordonnées ne sont jamais affichées.
+- Nouveaux fichiers : `js/directory.js`, `js/directory-i18n.js` (textes FR / EN / AR). `savoir-faire.html` et `region.html` restent accessibles.
+
+
+## Design (v5)
+
+`css/style.css` section 17 holds the premium design layer (zellige lattice, dune dividers, refined header/footer, cards, forms, motion). Palette unchanged. The "Savoir-faire et produits" section and its "En savoir plus" strings were removed.
+
+## Identité de marque (phase 2)
+
+- **Nom de marque :** `ATHAR`, identique en français, anglais et arabe (logo, titres d'onglet, pied de page).
+- **Slogan fixe :** `Artisanat et Tourisme Hassanis : Authenticité et Rencontre`, affiché sous le logo dans l'en-tête et le pied de page, **jamais traduit ni modifié** quand la langue change.
+- **Où c'est défini :** `AA.BRAND` dans `js/i18n.js` (volontairement *pas* dans `translations.js`, pour que personne ne le traduise par erreur) ; le HTML du logo est construit par `AA.logoHtml()` dans `js/main.js`, utilisé par l'en-tête et le pied de page, donc identique sur les 22 pages. Le slogan porte `lang="fr" dir="ltr"` et le logo `translate="no"` (les outils de traduction automatique du navigateur ne le touchent pas).
+- **Pour changer le slogan un jour :** modifiez `AA.BRAND.taglineLines` (deux lignes ; elles sont affichées l'une sous l'autre sur ordinateur et sur une seule ligne sous la barre sur téléphone).
+- **Styles :** bloc « BRANDING (phase 2) » à la fin de `css/style.css`.
+- **Responsive :** ordinateur large = logo + slogan sur deux lignes ; 1081–1260 px = en-tête compact ; ≤ 1080 px = menu burger ; ≤ 600 px = slogan sur une ligne sous la rangée du logo (l'en-tête passe de 66 à 78 px) ; ≤ 380 px = l'icône « s'inscrire » est masquée dans l'en-tête (l'inscription reste dans le menu du profil).
+- **Correctifs d'en-tête inclus :** l'en-tête débordait déjà (version v5) entre 861 et 1225 px et sur les écrans de 360 px, à cause des icônes de compte ajoutées plus tôt ; c'est corrigé.
+- **Testé :** Chromium (Playwright), FR / EN / AR, 10 largeurs de 320 à 1440 px, 22 pages (aucun chevauchement, aucun défilement horizontal causé par l'en-tête, texte du slogan identique au caractère près), changement de langue réel via le sélecteur. **Non testé :** Firefox, Safari, vrais téléphones, polices Google (pas d'Internet dans l'environnement de test : les polices de repli ont été utilisées).
+- **Reste connu, hors en-tête :** le tableau comparatif de `expeditions.html` dépasse de 4 px à 320 px (déjà présent dans la v5).
+
+## Phase 3 — Page « Avis des visiteurs » (`avis.html`)
+
+- Accessible depuis le pied de page (« Découvrir ») et le menu **Expériences** du header.
+- Les avis marqués **« Exemple illustratif »** sont des textes fictifs écrits pour le design : ce ne sont pas de vrais avis clients.
+- Filtres par catégorie (expérience ATHAR, coopératives, artisans, produits, expériences culturelles, mes avis), tri par date ou par note.
+- Formulaire de démonstration : note 1–5 étoiles, catégorie, sujet facultatif, titre (3–80 car.), commentaire (10–600 car.). Aucun nom, e-mail ni mot de passe.
+- Les avis ajoutés sont enregistrés **uniquement dans le navigateur** (`localStorage`, clé `aa_reviews`, 50 maximum). Ils ne sont pas publiés sur un serveur partagé. Ils peuvent être supprimés un par un ou tous ensemble.
+- Fichiers : `avis.html`, `js/avis.js`, `js/reviews-i18n.js` (textes FR/EN/AR) + styles ajoutés en fin de `css/style.css` (section 20). Les clés partagées du menu/pied de page/titre sont dans `js/coop-data.js`.

@@ -13,6 +13,11 @@ AA.LANGS = [
   { code: "ar", label: "العربية", short: "AR", dir: "rtl", locale: "ar-MA-u-nu-latn" }, // Latin digits keep prices readable
   { code: "en", label: "English", short: "EN", dir: "ltr", locale: "en-GB" },
 ];
+/* Fixed brand identity: NOT in translations.js on purpose. Name and slogan are identical in every language. */
+AA.BRAND = Object.freeze({
+  name: "ATHAR",
+  taglineLines: Object.freeze(["Artisanat et Tourisme Hassanis :", "Authenticité et Rencontre"]), // joined with one space = the exact slogan
+});
 AA.LANG_KEY = "aa_lang";
 AA.DEFAULT_LANG = "fr";
 

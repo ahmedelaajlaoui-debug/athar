@@ -114,7 +114,14 @@
                 <div class="muted form-hint" id="cp-desc-count"></div>
                 <div class="field-error"></div>
               </div>
-              <button class="btn btn--primary" type="submit"><span data-icon="check"></span><span data-i18n="co.p.save">Enregistrer le profil</span></button>
+              <div class="form-row">
+                <label class="check"><input id="cp-public" name="publicContact" type="checkbox" aria-describedby="cp-public-hint"><span data-i18n="dir.pub.contact"></span></label>
+                <div class="muted form-hint" id="cp-public-hint" data-i18n="dir.pub.hint"></div>
+              </div>
+              <div class="form-actions" style="display:flex;gap:.8rem;flex-wrap:wrap;align-items:center">
+                <button class="btn btn--primary" type="submit"><span data-icon="check"></span><span data-i18n="co.p.save">Enregistrer le profil</span></button>
+                <a class="btn btn--outline" id="cp-public-link" href="patrimoine.html"><span data-icon="eye"></span><span data-i18n="dir.pub.link"></span></a>
+              </div>
             </form>
           </section>
 
@@ -249,6 +256,7 @@
   <script src="js/regions-i18n.js"></script>
   <script src="js/inscription-i18n.js"></script>
   <script src="js/coop-i18n.js"></script>
+  <script src="js/directory-i18n.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/main.js"></script>
   <script src="js/cooperative.js"></script>

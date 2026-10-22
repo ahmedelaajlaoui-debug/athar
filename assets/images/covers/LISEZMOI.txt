@@ -1,0 +1,3 @@
+Covers du site. Pour utiliser de vraies photos : déposez ici dunes.jpg, desert.jpg, morocco.jpg,
+market.jpg, heritage.jpg, workshop.jpg, coast.jpg (format paysage, ~1600x900).
+Si un .jpg existe, il remplace automatiquement l'illustration .svg du même nom.

@@ -1,5 +1,9 @@
-/* checkout.js — demo checkout: validation, totals and confirmation (no payment) */
+/* checkout.js — checkout: validation, totals, envoi de la commande à la coopérative via le bot WhatsApp */
 document.addEventListener("DOMContentLoaded", () => {
+  // AJOUT : '' si le site est ouvert via le bot (http://localhost:3001/...).
+  // Sinon mets l'URL publique du bot, ex : "https://xxxx.ngrok-free.app"
+  const API_BASE = "";
+
   const form = document.getElementById("checkout-form");
   const layout = document.getElementById("checkout-layout");
   const emptyBox = document.getElementById("checkout-empty");
@@ -57,12 +61,54 @@ document.addEventListener("DOMContentLoaded", () => {
     return checks.every(Boolean);
   }
 
+  // AJOUT : envoi de la commande au bot (qui prévient la coopérative sur WhatsApp)
+  async function sendOrderToCoop() {
+    const f = form.elements;
+    const modeLabel = mode() === "pooled" ? "mutualisée" : "express";
+    const zip = f.zip.value.trim();
+
+    const payload = {
+      customer: {
+        name: f.name.value.trim(),
+        phone: f.phone.value.trim(),
+        city: f.city.value,
+        // email, code postal et mode de livraison sont ajoutés à l'adresse
+        // pour que la coopérative les voie dans le message WhatsApp
+        address: `${f.address.value.trim()}${zip ? " (" + zip + ")" : ""} | Livraison ${modeLabel} | ${f.email.value.trim()}`,
+      },
+      items: AA.cart.items().map((i) => ({ id: i.id, qty: i.qty })),
+    };
+
+    let res;
+    try {
+      res = await fetch(API_BASE + "/api/orders", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
+    } catch (e) {
+      throw new Error("Serveur injoignable. Réessayez dans un instant.");
+    }
+
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+      if (data.error === "Stock insuffisant") {
+        throw new Error(`Stock insuffisant pour « ${data.name} » (il en reste ${data.stock}).`);
+      }
+      if (data.error === "Produit introuvable") {
+        throw new Error("Un produit de votre panier n'est pas disponible à la commande.");
+      }
+      throw new Error(data.error || "Erreur lors de la commande.");
+    }
+    return data.order;
+  }
+
   form.addEventListener("input", (event) => {
     if (event.target.classList.contains("is-invalid")) AA.fieldError(event.target, "");
     renderSummary();
   });
 
-  form.addEventListener("submit", (event) => {
+  form.addEventListener("submit", async (event) => {
     event.preventDefault();
     if (!validate()) {
       AA.toast("Merci de corriger les champs en rouge.", true);
@@ -71,10 +117,26 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
+    // AJOUT : on envoie d'abord la commande, l'écran de succès vient ensuite
+    const submitBtn = form.querySelector('button[type="submit"]');
+    const originalLabel = submitBtn.textContent;
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Envoi en cours…";
+
+    let serverOrder;
+    try {
+      serverOrder = await sendOrderToCoop();
+    } catch (err) {
+      AA.toast(err.message, true);
+      submitBtn.disabled = false;
+      submitBtn.textContent = originalLabel;
+      return;
+    }
+
     const subtotal = AA.cart.subtotal();
     const shipping = quote();
     const order = {
-      id: "AA-" + Date.now().toString().slice(-7),
+      id: serverOrder.ref, // MODIFIÉ : vraie référence (CMD-xxxxxxxx) au lieu de DEMO-xxxxxxx
       date: new Date().toLocaleDateString("fr-FR"),
       items: AA.cart.items().map((i) => ({ name: AA.getProduct(i.id).name, qty: i.qty })),
       shippingMode: mode() === "pooled" ? "mutualisée" : "express",
@@ -85,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
     AA.cart.clear();
 
     document.getElementById("order-summary").textContent =
-      `Merci ${form.elements.name.value.trim()} ! Commande ${order.id} — total ${AA.formatMAD(order.total)}, livraison ${order.shippingMode} vers ${order.city} (${shipping.delay}, indicatif).`;
+      `Merci ${form.elements.name.value.trim()} ! Votre commande (réf. ${order.id}) a été transmise à la coopérative — total ${AA.formatMAD(order.total)}, livraison ${order.shippingMode} vers ${order.city} (${shipping.delay}, indicatif). Paiement à la livraison. La coopérative vous contactera.`;
     layout.classList.add("hidden");
     confirmation.classList.remove("hidden");
     window.scrollTo({ top: 0, behavior: "smooth" });

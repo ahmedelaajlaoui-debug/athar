@@ -4,7 +4,7 @@
    ========================================================== */
 (() => {
   const T = {
-    "ins.eyebrow": ["Rejoindre ATHAR", "Join ATHAR", "انضم إلى أثر"],
+    "ins.eyebrow": ["Rejoindre ATHAR", "Join ATHAR", "انضم إلى ATHAR"],
     "ins.h1": ["Créer un compte", "Create an account", "إنشاء حساب"],
     "ins.lead": ["Choisissez le type de compte qui vous correspond, ou continuez simplement en visiteur.", "Choose the account type that suits you, or simply continue as a visitor.", "اختر نوع الحساب الذي يناسبك، أو تابع ببساطة كزائر."],
     "ins.demo": ["Démonstration frontend :", "Frontend demonstration:", "عرض تجريبي للواجهة:"],
@@ -14,7 +14,7 @@
     "ins.role.coop": ["Compte Coopérative", "Cooperative account", "حساب تعاونية"],
     "ins.role.coop.x": ["Présentez votre coopérative et vos savoir-faire.", "Present your cooperative and its crafts.", "عرّف بتعاونيتك وحرفها."],
     "ins.role.client": ["Compte Client", "Customer account", "حساب زبون"],
-    "ins.role.client.x": ["Sauvegardez vos favoris et suivez vos commandes.", "Save your favourites and follow your orders.", "احفظ مفضلاتك وتابع طلباتك."],
+    "ins.role.client.x": ["Enregistrez vos favoris et préparez votre panier.", "Save your favourites and prepare your cart.", "احفظ مفضلاتك وجهّز سلة مشترياتك."],
     "ins.role.job": ["Compte Chercheur d'emploi", "Job-seeker account", "حساب باحث عن عمل"],
     "ins.role.job.x": ["Indiquez vos compétences et votre région souhaitée.", "Share your skills and preferred region.", "اذكر مهاراتك والجهة التي تفضلها."],
     "ins.role.visitor": ["Continuer en tant que visiteur", "Continue as a visitor", "المتابعة كزائر"],

@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
   <title>Patrimoine — ATHAR</title>
-  <meta name="description" content="Patrimoine du Sahara marocain : culture hassanie, melhfa, bijoux, tissage, cuir, bakhour, thé, poésie et paysages.">
+  <meta name="description" content="Annuaire des coopératives et artisans du Sahara marocain : fiches, produits associés et repères sur le patrimoine hassani.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
   <link rel="stylesheet" href="css/style.css">
@@ -14,86 +14,70 @@
   <div id="site-header"></div>
 
   <main id="main">
-    <section class="hero" data-bg="heritage" style="min-height:58vh">
-      <div class="container">
-        <div class="hero__inner">
-          <span class="eyebrow" style="color:#f0c9a0" data-i18n="hp.eyebrow">Un objet. Une histoire. Un patrimoine.</span>
-          <h1 data-i18n="hp.h1">Le patrimoine du Sahara marocain</h1>
-          <p data-i18n="hp.lead">Cinq savoir-faire, une culture orale et une hospitalité à comprendre avant de les admirer.</p>
-          <div class="hero__actions">
-            <a class="btn btn--accent" href="#savoir-faire" data-i18n="hp.cta1">Découvrir les savoir-faire</a>
-            <a class="btn btn--light" href="savoir-faire.html?id=the" data-i18n="hp.cta2">Le thé et l'hospitalité</a>
+    <!-- Directory view: hero, notice, directory, crafts -->
+    <div id="view-directory">
+      <section class="hero hero--small" data-bg="heritage">
+        <div class="container">
+          <div class="hero__inner">
+            <span class="eyebrow" style="color:#f0c9a0" data-i18n="dir.hero.eyebrow"></span>
+            <h1 data-i18n="dir.hero.h1"></h1>
+            <p data-i18n="dir.hero.lead"></p>
+            <div class="hero__actions">
+              <a class="btn btn--accent" href="#annuaire" data-i18n="dir.hero.cta1"></a>
+              <a class="btn btn--light" href="explorer.html#carte" data-i18n="dir.hero.cta2"></a>
+            </div>
           </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <div class="container mt-2">
-      <p class="notice"><strong data-i18n="hp.note.label">Note :</strong> <span data-i18n="hp.note.text">les textes de cette page sont des introductions générales et simplifiées.</span></p>
+      <div class="container mt-2">
+        <p class="notice" data-i18n="dir.notice"></p>
+      </div>
+
+      <!-- 1. Cooperative discovery (cards built by patrimoine.js from AA.dir) -->
+      <section class="section" id="annuaire">
+        <div class="container">
+          <div class="section-head">
+            <span class="eyebrow" data-i18n="dir.list.eyebrow"></span>
+            <h2 data-i18n="dir.list.title"></h2>
+          </div>
+          <div class="dir-filters" role="search">
+            <div class="form-row">
+              <label for="dir-q" data-i18n="dir.f.search"></label>
+              <input id="dir-q" type="search" maxlength="60" data-i18n-attr="placeholder:dir.f.search.ph">
+            </div>
+            <div class="form-row">
+              <label for="dir-region" data-i18n="dir.f.region"></label>
+              <select id="dir-region"></select>
+            </div>
+            <div class="form-row">
+              <label for="dir-craft" data-i18n="dir.f.craft"></label>
+              <select id="dir-craft"></select>
+            </div>
+            <div class="form-row"><button class="btn btn--outline" type="button" id="dir-reset" data-i18n="dir.f.reset"></button></div>
+          </div>
+          <p class="dir-status muted" id="dir-status" role="status" aria-live="polite"></p>
+          <div class="grid grid--3" id="coop-grid"></div>
+        </div>
+      </section>
     </div>
 
-    <!-- Introduction -->
-    <section class="section">
+    <!-- 2. Cooperative profile view (opened with patrimoine.html?coop=<id>) -->
+    <section class="section" id="cooperative" hidden>
+      <div class="container" id="coop-profile"></div>
+    </section>
+
+    <!-- 4. "Saviez-vous ?" -->
+    <section class="section section--green" id="saviez-vous">
       <div class="container">
-        <div class="section-head">
-          <span class="eyebrow" data-i18n="hp.intro.eyebrow">Un patrimoine vivant</span>
-          <h2 data-i18n="hp.intro.title">Des gestes, des matières, des récits</h2>
-          <p class="muted" data-i18n="hp.intro.text"></p>
+        <div class="section-head text-center" style="margin-inline:auto">
+          <span class="eyebrow" style="color:#f0c9a0" data-i18n="dyk.eyebrow"></span>
+          <h2 data-i18n="dyk.title"></h2>
+          <p style="color:#d8cdb4;font-size:.9rem" data-i18n="dyk.note"></p>
         </div>
-        <div class="grid grid--3">
-          <div class="info-box reveal"><h3 data-i18n="hp.box1.t"></h3><p data-i18n="hp.box1.x"></p></div>
-          <div class="info-box reveal"><h3 data-i18n="hp.box2.t"></h3><p data-i18n="hp.box2.x"></p></div>
-          <div class="info-box reveal"><h3 data-i18n="hp.box3.t"></h3><p data-i18n="hp.box3.x"></p></div>
-        </div>
+        <div class="dyk-grid" id="dyk-grid"></div>
       </div>
     </section>
-
-    <!-- The 5 Saharan crafts (cards built by patrimoine.js from AA.crafts) -->
-    <section class="section section--sand" id="savoir-faire">
-      <span id="techniques"></span>
-      <div class="container">
-        <div class="section-head">
-          <span class="eyebrow" data-i18n="hp.crafts.eyebrow"></span>
-          <h2 data-i18n="hp.crafts.title"></h2>
-          <p class="muted" data-i18n="hp.crafts.text"></p>
-        </div>
-        <div class="craft-grid craft-grid--5" id="craft-grid"></div>
-      </div>
-    </section>
-
-    <!-- Culture articles: tea, music and poetry, cuisine, desert and oases -->
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <span class="eyebrow" data-i18n="hp.topics.eyebrow"></span>
-          <h2 data-i18n="hp.topics.title"></h2>
-        </div>
-        <div class="grid grid--2" id="topic-grid"></div>
-      </div>
-    </section>
-
-    <!-- Motifs -->
-    <section class="section section--sand" id="motifs">
-      <div class="container">
-        <div class="section-head">
-          <span class="eyebrow" data-i18n="hp.motifs.eyebrow"></span>
-          <h2 data-i18n="hp.motifs.title"></h2>
-          <p class="muted" data-i18n="hp.motifs.text"></p>
-        </div>
-        <div class="grid grid--3" id="motif-grid"></div>
-      </div>
-    </section>
-
-    <!-- Saviez-vous que -->
-    <section class="section section--green">
-      <div class="container text-center" style="max-width:760px">
-        <span class="eyebrow" style="color:#f0c9a0" data-i18n="hp.fact.eyebrow"></span>
-        <h2 id="fact-text" aria-live="polite"></h2>
-        <p style="color:#d8cdb4;font-size:.85rem" data-i18n="hp.fact.note"></p>
-        <button class="btn btn--light" type="button" id="next-fact" data-i18n="hp.fact.next"></button>
-      </div>
-    </section>
-
   </main>
 
   <div id="site-footer"></div>
@@ -103,9 +87,14 @@
   <script src="js/translations.js"></script>
   <script src="js/coop-data.js"></script>
   <script src="js/account.js"></script>
+  <script src="js/regions.js"></script>
+  <script src="js/regions-i18n.js"></script>
   <script src="js/pages-i18n.js"></script>
+  <script src="js/directory-i18n.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/main.js"></script>
+  <script src="js/regions-ui.js"></script>
+  <script src="js/directory.js"></script>
   <script src="js/patrimoine.js"></script>
 </body>
 </html>

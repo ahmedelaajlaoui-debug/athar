@@ -8,7 +8,6 @@
 AA.translations = {
   fr: {
     "brand.name": "ATHAR",
-    "brand.tagline": "Artisanat du Sahara",
     "skip": "Aller au contenu",
 
     "nav.aria": "Navigation principale",
@@ -124,7 +123,6 @@ AA.translations = {
 
   en: {
     "brand.name": "ATHAR",
-    "brand.tagline": "Sahara crafts",
     "skip": "Skip to content",
 
     "nav.aria": "Main navigation",
@@ -239,8 +237,7 @@ AA.translations = {
   },
 
   ar: {
-    "brand.name": "أثر",
-    "brand.tagline": "حِرف الصحراء",
+    "brand.name": "ATHAR",
     "skip": "انتقل إلى المحتوى",
 
     "nav.aria": "التنقل الرئيسي",
@@ -267,7 +264,7 @@ AA.translations = {
     "city.Smara": "السمارة",
     "city.Boujdour": "بوجدور",
 
-    "header.home": "أثر — الصفحة الرئيسية",
+    "header.home": "ATHAR — الصفحة الرئيسية",
     "search.open": "بحث",
     "search.close": "إغلاق البحث",
     "search.label": "ابحث عن منتج",
@@ -289,7 +286,7 @@ AA.translations = {
     "footer.shop": "المتجر",
     "footer.myspace": "حسابي",
     "footer.checkout": "إتمام الطلب",
-    "footer.copy": "© 2026 أثر — مشروع طلابي تجريبي.",
+    "footer.copy": "© 2026 ATHAR — مشروع طلابي تجريبي.",
     "footer.disclaimer": "ملفات وأسعار وأرقام توضيحية · لا يوجد أي دفع حقيقي.",
 
     "currency": "درهم",
@@ -340,7 +337,7 @@ AA.translations = {
     "passport.backToProduct": "صفحة المنتج",
     "heritage.seePiece": "عرض قطعة بهذا الزخرف",
 
-    "title.index": "أثر — فنّ الصحراء بحكاية مختلفة",
+    "title.index": "ATHAR — فنّ الصحراء بحكاية مختلفة",
     "title.explorer": "استكشف الصحراء",
     "title.patrimoine": "التراث",
     "title.artisans": "الحرفيون",

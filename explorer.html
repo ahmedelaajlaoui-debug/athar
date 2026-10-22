@@ -30,39 +30,25 @@
         <div class="map-layout">
           <div>
             <div class="region-map" id="map-box" role="group" data-i18n-attr="aria-label:exp.map.aria"></div>
-            <p class="region-map-note muted" data-i18n="exp.map.note">Carte illustrée, non à l'échelle. Aucune frontière n'est représentée ; les lieux sont placés d'après leurs coordonnées.</p>
+            <p class="region-map-note muted"><span data-i18n="exp.map.note"></span> <span data-i18n="dir.map.hint"></span></p>
           </div>
           <aside class="destination-panel" id="destination-panel" aria-live="polite"></aside>
         </div>
       </div>
     </section>
 
-    <!-- 16 city cards: the first 8 are visible, the other 8 are revealed by "Voir plus" -->
+    <!-- 7 clickable city cards (no separate button: the whole card selects the city) -->
     <section class="section section--sand" id="villes">
       <div class="container">
         <div class="section-head">
           <span class="eyebrow" data-i18n="exp.list.eyebrow">Toutes les destinations</span>
           <h2 data-i18n="exp.list.title">Sept destinations à découvrir</h2>
-          <p class="muted" data-i18n="exp.list.note">Contenu général et simplifié, sans artisan ni coopérative réels cités.</p>
+          <p class="muted" data-i18n="dir.exp.list.note"></p>
         </div>
         <div class="grid grid--4" id="city-cards"></div>
       </div>
     </section>
 
-    <section class="section">
-      <div class="container">
-        <div class="section-head">
-          <span class="eyebrow" data-i18n="exp.stories.eyebrow">Les histoires du territoire</span>
-          <h2 data-i18n="exp.stories.title">Motifs et récits du Sahara</h2>
-          <p class="muted" data-i18n="exp.stories.note">Contenu illustratif : les associations entre motifs et villes sont données à titre d'exemple.</p>
-        </div>
-        <div class="grid grid--3">
-          <a class="card" href="patrimoine.html#motifs"><div class="card__body"><h3 data-i18n="exp.stories.motifs.title">Découvrir les motifs</h3><p class="card__meta" data-i18n="exp.stories.motifs.text">Croissant, étoile, losange… ce que ces formes peuvent évoquer.</p></div></a>
-          <a class="card" href="patrimoine.html#techniques"><div class="card__body"><h3 data-i18n="exp.stories.tech.title">Comprendre les techniques</h3><p class="card__meta" data-i18n="exp.stories.tech.text">Ciselure, tissage, travail du cuir et mélange des encens.</p></div></a>
-          <a class="card" href="artisans.html"><div class="card__body"><h3 data-i18n="exp.stories.artisans.title">Rencontrer les artisans</h3><p class="card__meta" data-i18n="exp.stories.artisans.text">Des profils fictifs d'exemple par ville, par métier et par coopérative.</p></div></a>
-        </div>
-      </div>
-    </section>
   </main>
 
   <div id="site-footer"></div>
@@ -74,9 +60,11 @@
   <script src="js/account.js"></script>
   <script src="js/regions.js"></script>
   <script src="js/regions-i18n.js"></script>
+  <script src="js/directory-i18n.js"></script>
   <script src="js/i18n.js"></script>
   <script src="js/main.js"></script>
   <script src="js/regions-ui.js"></script>
+  <script src="js/directory.js"></script>
   <script src="js/explorer.js"></script>
 </body>
 </html>

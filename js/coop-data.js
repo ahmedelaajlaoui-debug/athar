@@ -66,7 +66,7 @@
   const rawJobs = () => asList(read(KEYS.jobs, []));
 
   const CAT_PHOTO = () => (typeof categoryPhotos !== "undefined" ? categoryPhotos : {});
-  const validCat = (c) => (AA.categories && AA.categories.includes(c) ? c : (AA.categories ? AA.categories[0] : "Melhfa"));
+  const validCat = (c) => (AA.categories && AA.categories.includes(c) ? c : (AA.categories ? AA.categories[0] : "Épicerie"));
 
   const toProduct = (cp, profile) => {
     const cat = validCat(cp.cat);
@@ -201,7 +201,7 @@
   const baseGetArtisan = AA.getArtisan;
   AA.getArtisan = (id) => (baseGetArtisan && baseGetArtisan(id)) || AA.coopArtisans[id] || {
     id, name: "Coopérative partenaire", coop: "Coopérative partenaire", city: "Laâyoune",
-    craft: "Melhfa", specialty: "", verified: false, bio: "", techniques: "—", photo: ""
+    craft: (AA.categories && AA.categories[0]) || "", specialty: "", verified: false, bio: "", techniques: "—", photo: ""
   };
 
   // Reconnaît indifféremment les ID texte et nombre
@@ -214,14 +214,7 @@
   document.addEventListener("visibilitychange", () => { if (!document.hidden) fetchBotProducts(); });
 
   /* ---------- Job advertisements ---------- */
-  const SEED_JOBS = [
-    { id: "seed1", cat: "craft", region: "dakhla", coopName: "Coopérative Nour Dakhla",
-      title: { fr: "Aide à l'atelier de tissage (exemple)", en: "Weaving workshop helper (example)", ar: "مساعد في ورشة النسيج (مثال)" },
-      desc: { fr: "Exemple illustratif : accompagner les tisseuses dans la préparation de la laine. Annonce fictive.", en: "Illustrative example.", ar: "مثال توضيحي." } },
-    { id: "seed2", cat: "sales", region: "laayoune", coopName: "Coopérative Al Amal",
-      title: { fr: "Conseiller(ère) de vente en boutique (exemple)", en: "Shop sales advisor (example)", ar: "مستشار(ة) مبيعات في المتجر (مثال)" },
-      desc: { fr: "Exemple illustratif.", en: "Illustrative example.", ar: "مثال توضيحي." } }
-  ];
+  const SEED_JOBS = [];
 
   const jobs = () => {
     const all = coops();

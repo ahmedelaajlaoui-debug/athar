@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/svg+xml" href="assets/icons/favicon.svg">
+  <title>Avis des visiteurs — ATHAR</title>
+  <meta name="description" content="Avis des visiteurs sur ATHAR : exemples illustratifs et formulaire de démonstration (avis enregistrés uniquement dans votre navigateur).">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@400;500;600&family=Cairo:wght@400;500;600;700&display=swap">
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body data-page="avis">
+  <div id="site-header"></div>
+
+  <main id="main">
+    <section class="section">
+      <div class="container">
+        <div class="section-head">
+          <span class="eyebrow" data-i18n="rv.eyebrow">Avis des visiteurs</span>
+          <h1 style="font-size:clamp(2rem,4vw,3rem)" data-i18n="rv.h1">Votre expérience ATHAR</h1>
+          <p class="muted" data-i18n="rv.lead">Parcourez des avis d'exemple sur la plateforme, les coopératives, les artisans, les produits et les expériences culturelles, ou écrivez le vôtre pour tester le formulaire.</p>
+        </div>
+
+        <p class="notice mb-2"><strong data-i18n="rv.demo.title">Page de démonstration.</strong> <span data-i18n="rv.demo.text">Les avis marqués « Exemple illustratif » sont des textes fictifs écrits pour le design : ils ne viennent pas de vrais clients. Les avis que vous ajoutez restent enregistrés uniquement dans ce navigateur : ils ne sont pas publiés sur un serveur partagé et personne d'autre ne les voit.</span></p>
+
+        <div class="reviews-layout">
+          <div class="reviews-main">
+            <div class="chip-row" id="rv-chips" role="group" data-i18n-attr="aria-label:rv.filter.aria" aria-label="Filtrer les avis par catégorie"></div>
+            <div class="toolbar reviews-toolbar">
+              <p class="muted" id="rv-count" role="status" aria-live="polite"></p>
+              <div class="reviews-sort">
+                <label for="rv-sort" data-i18n="rv.sort.label">Trier par</label>
+                <select id="rv-sort">
+                  <option value="recent" data-i18n="rv.sort.recent">Les plus récents</option>
+                  <option value="high" data-i18n="rv.sort.high">Meilleures notes</option>
+                  <option value="low" data-i18n="rv.sort.low">Notes les plus basses</option>
+                </select>
+              </div>
+            </div>
+            <div class="reviews-list" id="rv-list"></div>
+            <p class="mt-2"><button type="button" class="btn btn--outline btn--sm" id="rv-clear" hidden data-i18n="rv.clear">Supprimer tous mes avis de démo</button></p>
+          </div>
+
+          <aside class="reviews-side">
+            <form class="form-card" id="rv-form" novalidate aria-labelledby="rv-form-title">
+              <h2 id="rv-form-title" style="font-size:1.5rem" data-i18n="rv.form.title">Écrire un avis de démonstration</h2>
+              <p class="form-hint" data-i18n="rv.form.intro">Aucun nom, e-mail ni mot de passe n'est demandé. Ne saisissez pas d'informations personnelles.</p>
+
+              <div class="review-success" id="rv-success" role="status" tabindex="-1" hidden></div>
+
+              <fieldset class="form-row rating-field" id="rv-rating-field">
+                <legend data-i18n="rv.f.rating">Votre note *</legend>
+                <div class="rating-input" id="rv-stars" role="radiogroup" data-i18n-attr="aria-label:rv.f.rating.group" aria-label="Note de 1 à 5 étoiles"></div>
+                <div class="rating-value muted" id="rv-rating-text" aria-live="polite"></div>
+                <div class="field-error" id="rv-rating-err"></div>
+              </fieldset>
+
+              <div class="form-row">
+                <label for="rv-cat" data-i18n="rv.f.cat">Catégorie *</label>
+                <select id="rv-cat" name="category" required></select>
+                <div class="field-error" id="rv-cat-err"></div>
+              </div>
+              <div class="form-row" id="rv-subject-row" hidden>
+                <label for="rv-subject" data-i18n="rv.f.subject">À propos de (facultatif)</label>
+                <select id="rv-subject" name="subject"></select>
+              </div>
+              <div class="form-row">
+                <label for="rv-title" data-i18n="rv.f.title">Titre de l'avis *</label>
+                <input id="rv-title" name="title" type="text" maxlength="80" autocomplete="off" data-i18n-attr="placeholder:rv.f.title.ph" placeholder="En quelques mots">
+                <div class="field-error" id="rv-title-err"></div>
+              </div>
+              <div class="form-row">
+                <label for="rv-comment" data-i18n="rv.f.comment">Votre commentaire *</label>
+                <textarea id="rv-comment" name="comment" maxlength="600" rows="5" autocomplete="off" data-i18n-attr="placeholder:rv.f.comment.ph" placeholder="Décrivez votre expérience (10 caractères minimum)."></textarea>
+                <div class="form-hint" id="rv-counter"></div>
+                <div class="field-error" id="rv-comment-err"></div>
+              </div>
+
+              <p class="form-hint" data-i18n="rv.f.note">Cet avis sera enregistré uniquement dans ce navigateur (localStorage), à titre de démonstration.</p>
+              <div class="form-actions">
+                <button type="submit" class="btn btn--primary" data-i18n="rv.f.submit">Envoyer mon avis (démo)</button>
+                <button type="button" class="btn btn--outline" id="rv-reset" data-i18n="rv.f.reset">Effacer le formulaire</button>
+              </div>
+            </form>
+          </aside>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <div id="site-footer"></div>
+  <script src="js/data.js"></script>
+  <script src="js/icons.js"></script>
+  <script src="js/translations.js"></script>
+  <script src="js/coop-data.js"></script>
+  <script src="js/account.js"></script>
+  <script src="js/reviews-i18n.js"></script>
+  <script src="js/i18n.js"></script>
+  <script src="js/main.js"></script>
+  <script src="js/avis.js"></script>
+</body>
+</html>

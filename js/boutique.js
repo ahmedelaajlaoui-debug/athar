@@ -1,4 +1,4 @@
-/* boutique.js — product catalog: search, filters, sorting, "load more" */
+/* boutique.js — product catalog: search, filters, sorting, "load more" (Connecté au Bot WhatsApp) */
 document.addEventListener("DOMContentLoaded", async () => {
   const PAGE_SIZE = 9;
 
@@ -29,63 +29,86 @@ document.addEventListener("DOMContentLoaded", async () => {
   let category = ""; // "" = all
   let visible = PAGE_SIZE;
 
-  // ============================================================
-  // CHARGEMENT ET FUSION DES PRODUITS DU BOT WHATSAPP (/api/products)
-  // ============================================================
+  // ==========================================
+  // 1. RÉCUPÉRATION DES DONNÉES DU BOT WHATSAPP
+  // ==========================================
   try {
-    const res = await fetch('/api/products');
-    if (res.ok) {
-      const apiProducts = await res.json();
-      
-      // Adaptation du format API vers le format AA.products
-      const formattedApiProducts = apiProducts.map((p) => {
-        const firstImg = (p.imagesUrls && p.imagesUrls.length > 0) ? p.imagesUrls[0] : (p.images && p.images[0] ? `/uploads/${p.images[0]}` : 'assets/placeholder.jpg');
-        return {
-          id: p.id,
-          name: p.name,
-          cat: p.cat || p.category || "Cuir",
-          city: p.city || "Laâyoune",
-          price: p.price,
-          stock: p.stock === null || p.stock === undefined ? 10 : p.stock,
-          verified: true,
-          pop: 99, // Priorité d'affichage pour les nouveaux ajouts
-          image: firstImg,
-          images: p.imagesUrls || [firstImg],
-          artisan: p.managerName || p.phone || "Artisan",
-          coop: p.cooperativeName || "Coopérative partenaire",
-          description: p.description || ""
-        };
-      });
+    el.grid.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">Chargement des créations depuis WhatsApp...</p>';
+    
+    const reponse = await fetch('/api/products');
+    if (!reponse.ok) throw new Error("Erreur réseau");
+    const produitsBot = await reponse.json();
 
-      // Fusion sans doublon (les produits du bot viennent en premier)
-      const existingIds = new Set(formattedApiProducts.map(p => String(p.id)));
-      const staticFiltered = (AA.products || []).filter(p => !existingIds.has(String(p.id)));
-      AA.products = [...formattedApiProducts, ...staticFiltered];
+    // ASTUCE ANTI-CRASH : Création d'un artisan générique pour les produits du bot
+    if (typeof AA.artisans !== 'undefined' && !AA.artisans.find(a => a.id === "bot_artisan")) {
+      AA.artisans.push({
+        id: "bot_artisan",
+        name: "Artisan Partenaire",
+        coop: "Réseau ATHAR",
+        verified: true,
+        city: "Maroc"
+      });
     }
-  } catch (err) {
-    console.warn("API produits non joignable, utilisation des données locales :", err);
+
+    // Remplacement des données statiques par les vraies données du bot
+    AA.products = produitsBot.map(p => ({
+      id: p.id,
+      name: p.name,
+      price: p.price,
+      description: p.description || "",
+      cat: p.category || 'Autre',
+      city: p.city || (p.cooperativeDetails && p.cooperativeDetails.city) || 'Maroc',
+      coop: p.cooperativeName || 'Coopérative',
+      image: (p.imagesUrls && p.imagesUrls.length > 0) ? p.imagesUrls[0] : 'assets/img/default.jpg',
+      images: p.imagesUrls || [], 
+      stock: p.stock === null ? 999 : (p.stock || 0),
+      verified: true, 
+      pop: 100, 
+      artisan: "bot_artisan" // Empêche AA.productCard de planter !
+    }));
+
+  } catch (erreur) {
+    console.warn("Bot WhatsApp injoignable. Utilisation des données statiques (js/data.js).", erreur);
   }
 
-  /* Build the filter controls */
-  if (AA.cities) {
+  el.grid.innerHTML = '';
+
+  // ==========================================
+  // 2. INITIALISATION DES FILTRES
+  // ==========================================
+
+  const maxPriceInArray = AA.products.length > 0 ? Math.max(...AA.products.map((p) => p.price)) : 1500;
+  const topPrice = Math.max(Number(el.price.max), Math.ceil(maxPriceInArray / 50) * 50);
+  el.price.max = String(topPrice);
+  el.price.value = String(topPrice);
+
+  if (typeof AA.cities !== 'undefined') {
     AA.cities.forEach((c) => el.dest.add(new Option(c.name, c.name)));
   }
   
-  // cooperative demo products can come from other Saharan towns (Tarfaya, Guelmim, Tan-Tan)
-  [...new Set(AA.products.map((p) => p.city))].filter((name) => !AA.cities.some((c) => c.name === name)).sort()
-    .forEach((name) => el.dest.add(new Option(AA.cityLabel ? AA.cityLabel(name) : name, name)));
-    
+  [...new Set(AA.products.map((p) => p.city))]
+    .filter((name) => typeof AA.cities === 'undefined' || !AA.cities.some((c) => c.name === name))
+    .sort()
+    .forEach((name) => {
+      const label = (typeof AA.cityLabel === 'function') ? AA.cityLabel(name) : name;
+      el.dest.add(new Option(label, name));
+    });
+
   el.types.innerHTML = Object.keys(CRAFT_TYPES)
     .map((t) => `<label class="check"><input type="checkbox" value="${t}" data-type> ${t}</label>`)
     .join("");
 
   function renderChips() {
+    if (typeof AA.categories === 'undefined') return;
     el.chips.innerHTML = ["", ...AA.categories]
       .map((c) => `<button type="button" class="chip ${category === c ? "is-active" : ""}" data-cat="${c}">${c || "Tous"}</button>`)
       .join("");
   }
 
-  /* Apply every filter, then sort */
+  // ==========================================
+  // 3. LOGIQUE DE RECHERCHE ET D'AFFICHAGE
+  // ==========================================
+
   function getResults() {
     const query = el.search.value.trim().toLowerCase();
     const maxPrice = Number(el.price.value);
@@ -93,9 +116,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     const allowedCats = checkedTypes.flatMap((t) => CRAFT_TYPES[t]);
 
     const list = AA.products.filter((p) => {
-      const artisanObj = AA.getArtisan ? AA.getArtisan(p.artisan) : null;
-      const artisanName = artisanObj?.name || p.artisan || "";
+      const artisanData = (p.artisan && typeof AA.getArtisan === 'function') ? AA.getArtisan(p.artisan) : null;
+      const artisanName = artisanData ? artisanData.name : "";
+      
       const text = `${p.name} ${p.cat} ${p.city} ${artisanName} ${p.coop}`.toLowerCase();
+      
       return (
         (!query || text.includes(query)) &&
         (!category || p.cat === category) &&
@@ -110,26 +135,35 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (el.sort.value === "asc") list.sort((a, b) => a.price - b.price);
     else if (el.sort.value === "desc") list.sort((a, b) => b.price - a.price);
     else list.sort((a, b) => (b.pop || 0) - (a.pop || 0));
+    
     return list;
   }
 
   function render() {
-    el.priceLabel.textContent = AA.formatMAD(el.price.value);
+    el.priceLabel.textContent = (typeof AA.formatMAD === 'function') ? AA.formatMAD(el.price.value) : `${el.price.value} DH`;
     renderChips();
+    
     const results = getResults();
     el.count.textContent = `${results.length} produit${results.length > 1 ? "s" : ""}`;
 
     if (!results.length) {
-      el.grid.innerHTML = AA.emptyState({ 
-        icon: "vase", 
-        title: AA.t ? AA.t("empty.products.title") : "Aucun produit trouvé", 
-        text: AA.t ? AA.t("empty.products.text") : "Essayez de modifier vos filtres.", 
-        extra: `<button class="btn btn--outline" type="button" data-reset>${AA.t ? AA.t("action.resetFilters") : "Réinitialiser"}</button>` 
-      });
+      if (typeof AA.emptyState === 'function' && typeof AA.t === 'function') {
+        el.grid.innerHTML = AA.emptyState({ icon: "vase", title: AA.t("empty.products.title"), text: AA.t("empty.products.text"), extra: `<button class="btn btn--outline" type="button" data-reset>${AA.t("action.resetFilters")}</button>` });
+      } else {
+        el.grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center;">Aucun produit trouvé.</p>`;
+      }
       el.more.classList.add("hidden");
       return;
     }
-    el.grid.innerHTML = results.slice(0, visible).map(AA.productCard).join("");
+    
+    // Génération sécurisée des cartes HTML
+    try {
+        el.grid.innerHTML = results.slice(0, visible).map(AA.productCard).join("");
+    } catch (e) {
+        console.error("Erreur de rendu de la carte produit:", e);
+        el.grid.innerHTML = `<p style="grid-column: 1/-1; text-align:center; color: red;">Erreur d'affichage des produits. Vérifiez la console.</p>`;
+    }
+    
     el.more.classList.toggle("hidden", visible >= results.length);
   }
 
@@ -145,7 +179,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     render();
   }
 
-  /* Events: any filter change restarts from the first page */
   [el.search, el.price, el.dest, el.verified, el.stock, el.sort, el.types].forEach((control) =>
     control.addEventListener("input", () => { visible = PAGE_SIZE; render(); })
   );
@@ -157,10 +190,11 @@ document.addEventListener("DOMContentLoaded", async () => {
     if (event.target.closest("[data-reset]")) resetFilters();
   });
 
-  /* Start values coming from the URL (?q=, ?cat=, ?dest=) */
-  el.search.value = AA.getParam ? (AA.getParam("q") || "") : "";
-  if (AA.categories && AA.getParam && AA.categories.includes(AA.getParam("cat"))) category = AA.getParam("cat");
-  if (AA.cities && AA.getParam && AA.cities.some((c) => c.name === AA.getParam("dest"))) el.dest.value = AA.getParam("dest");
+  if (typeof AA.getParam === 'function') {
+    el.search.value = AA.getParam("q") || "";
+    if (typeof AA.categories !== 'undefined' && AA.categories.includes(AA.getParam("cat"))) category = AA.getParam("cat");
+    if (typeof AA.cities !== 'undefined' && AA.cities.some((c) => c.name === AA.getParam("dest"))) el.dest.value = AA.getParam("dest");
+  }
 
   render();
 });

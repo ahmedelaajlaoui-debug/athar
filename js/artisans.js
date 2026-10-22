@@ -10,12 +10,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Fill the two <select> menus from the data
   [...new Set(AA.artisans.map((a) => a.city))].sort().forEach((city) => citySelect.add(new Option(city, city)));
-  [...new Set(AA.artisans.map((a) => a.craft))].sort().forEach((craft) => craftSelect.add(new Option(craft, craft)));
+  [...new Set(AA.artisans.map((a) => a.craft))].sort().forEach((craft) => craftSelect.add(new Option(AA.catLabel(craft), craft)));
 
   function renderList() {
     const query = search.value.trim().toLowerCase();
     const list = AA.artisans.filter((a) => {
-      const text = `${a.name} ${a.coop} ${a.specialty}`.toLowerCase();
+      const text = `${a.name} ${a.nameAr || ""} ${a.coop} ${a.specialty}`.toLowerCase();
       return (
         (!query || text.includes(query)) &&
         (!citySelect.value || a.city === citySelect.value) &&
@@ -23,7 +23,7 @@ document.addEventListener("DOMContentLoaded", () => {
         (!verified.checked || a.verified)
       );
     });
-    count.textContent = `${list.length} artisan${list.length > 1 ? "s" : ""} trouvé${list.length > 1 ? "s" : ""}`;
+    count.textContent = `${list.length} coopérative${list.length > 1 ? "s" : ""} trouvée${list.length > 1 ? "s" : ""}`;
     grid.innerHTML = list.length
       ? list.map(AA.artisanCard).join("")
       : AA.emptyState({ icon: "search_empty", title: AA.t("empty.artisans.title"), text: AA.t("empty.artisans.text"), extra: `<button class="btn btn--outline" type="button" id="reset-artisans">${AA.t("action.reset")}</button>` });
@@ -37,12 +37,12 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="artisan-detail__grid">
         <div>${`<img class="portrait" src="${AA.esc(a.photo)}" alt="${AA.esc(a.name)}" data-label="${AA.esc(a.name)}" data-cat="${a.craft}" onerror="AA.fallback(this)">`}</div>
         <div>
-          <div class="tags mb-1"><span class="tag">${a.craft}</span>${a.verified ? '<span class="tag tag--green">Coopérative vérifiée</span>' : ""}</div>
-          <h2>${AA.esc(a.name)}</h2>
-          <p class="muted">${AA.esc(a.coop)} · ${a.city}</p>
+          <div class="tags mb-1"><span class="tag">${AA.catLabel(a.craft)}</span>${a.verified ? '<span class="tag tag--green">Coopérative vérifiée</span>' : ""}</div>
+          <h2>${AA.esc(a.name)}${a.nameAr ? ` <small dir="rtl" lang="ar">${AA.esc(a.nameAr)}</small>` : ""}</h2>
+          <p class="muted">${AA.esc(a.region || "")} · ${a.city}</p>
           <p>${AA.esc(a.bio)}</p>
-          <p><strong>Techniques :</strong> ${AA.esc(a.techniques)}</p>
-          <h3 class="mt-1">Ses créations</h3>
+          <p><strong>Localité :</strong> ${AA.esc(a.locality || a.city)}</p>${a.certification ? `<p><strong>Certification :</strong> ${AA.esc(a.certification)}</p>` : ""}
+          <h3 class="mt-1">Ses produits</h3>
           <ul class="mini-list">${products.map((p) => `<li><a href="produit.html?id=${p.id}">${AA.esc(p.name)}</a> — ${AA.formatMAD(p.price)}</li>`).join("")}</ul>
           <div class="hero__actions" style="margin-top:1rem">
             <a class="btn btn--primary btn--sm" href="boutique.html?q=${encodeURIComponent(a.name)}">Voir ses produits</a>

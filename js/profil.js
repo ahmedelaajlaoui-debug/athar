@@ -1,7 +1,7 @@
 /* ==========================================================
    profil.js — "Mon espace": one page, four demo roles (Account Phase 3, FRONTEND DEMO ONLY)
    - customer     : profile, favorites, cart (quantities / remove), discover (boutique, cooperatives)
-   - job seeker   : profile, skills + preferences + experience, matching job offers
+   - job seeker   : profile, skills + preferences + experience, matching job offers, "My applications" (demo, local only)
    - cooperative  : card pointing to the cooperative dashboard (cooperative.html, unchanged)
    - visitor      : public browsing + optional registration
    Reuses AA.favs, AA.cart, AA.store and the shared card templates. Only non-sensitive demo data is stored
@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const A = AA.coop;
   const esc = AA.esc;
 
-  const TABS = { client: ["info", "favs", "cart", "discover"], job: ["info", "prefs", "match"], coop: [], visitor: [] };
+  const TABS = { client: ["info", "favs", "cart", "discover"], job: ["info", "prefs", "match", "apps"], coop: [], visitor: [] };
   let role = ACC.role();
   let tab = (location.hash || "").slice(1);
   let skillsDraft = [];
@@ -176,6 +176,43 @@ document.addEventListener("DOMContentLoaded", () => {
       <div class="hero__actions" style="margin-top:1rem"><a class="btn btn--primary" href="emploi.html?${q.toString()}">${AA.icon("briefcase")}${esc(AA.t("jb.h1"))}</a>${all}</div>`;
   };
 
+  /* "My applications": demo applications saved in THIS browser only (never delivered to a cooperative) */
+  const appsView = () => {
+    const list = ACC.myApplications();
+    const locale = { fr: "fr-FR", en: "en-GB", ar: "ar-MA" }[AA.lang] || "fr-FR";
+    const date = (iso) => { try { return new Date(iso).toLocaleDateString(locale); } catch (error) { return ""; } };
+    const note = `<p class="notice">${esc(AA.t("ac.apps.note"))}</p>`;
+    if (!list.length) {
+      return `${note}${AA.emptyState({ icon: "briefcase", title: esc(AA.t("ac.apps.empty.t")), text: esc(AA.t("ac.apps.empty.x")), href: "emploi.html", label: esc(AA.t("ac.apps.browse")) })}`;
+    }
+    const jobs = A.jobs();
+    return `
+      ${note}
+      <p class="muted" role="status">${esc(AA.t("ac.apps.count", { n: list.length }))}</p>
+      ${list.map((a) => {
+        const job = jobs.find((j) => j.id === a.jobId);
+        const title = A.tx(job ? job.title : a.jobTitle) || "—";
+        const expLabel = ["0", "1", "2", "3"].includes(String(a.exp)) ? ` · ${esc(AA.t(`ins.exp.${a.exp}`))}` : "";
+        return `
+        <article class="card app-card">
+          <div class="card__body">
+            <div class="tags"><span class="tag tag--terra">${esc(AA.t("ac.apps.status"))}</span></div>
+            <h3>${job ? `<a href="emploi.html?job=${encodeURIComponent(job.id)}">${esc(title)}</a>` : esc(title)}</h3>
+            <p class="card__meta">${esc(a.coopName || (job ? job.coopName : ""))} · ${esc(AA.t("ac.apps.date", { date: date(a.date) }))}</p>
+            <dl class="app-facts">
+              <div><dt>${esc(AA.t("ac.apps.skills"))}${expLabel}</dt><dd>${esc(a.skills)}</dd></div>
+              <div><dt>${esc(AA.t("ac.apps.message"))}</dt><dd>${esc(a.message)}</dd></div>
+            </dl>
+            ${job ? "" : `<p class="muted">${esc(AA.t("ac.apps.gone"))}</p>`}
+            <div class="card__actions">
+              ${job ? `<a class="btn btn--outline btn--sm" href="emploi.html?job=${encodeURIComponent(job.id)}">${esc(AA.t("ac.apps.view"))}</a>` : ""}
+              <button class="btn btn--outline btn--sm" type="button" data-app-withdraw="${esc(a.id)}">${AA.icon("trash")}${esc(AA.t("ac.apps.withdraw"))}</button>
+            </div>
+          </div>
+        </article>`;
+      }).join("")}`;
+  };
+
   /* ---------- cooperative + visitor ---------- */
   const coopView = () => `
     <div class="form-card">
@@ -233,8 +270,28 @@ document.addEventListener("DOMContentLoaded", () => {
   /* ---------- render ---------- */
   const VIEWS = {
     client: { info: clientInfo, favs: favsView, cart: cartView, discover: discoverView },
-    job: { info: jobInfo, prefs: prefsView, match: matchView },
+    job: { info: jobInfo, prefs: prefsView, match: matchView, apps: appsView },
   };
+    /* AJOUT : compte réel — l'en-tête affiche le vrai nom et le vrai email */
+  document.addEventListener("aa:auth", (event) => {
+    const user = event.detail;
+    if (!user) return;
+    AA.store.set("aa_profile", { ...AA.store.get("aa_profile", {}), name: user.name, email: user.email });
+    if (ACC.role() === "visitor") {
+      ACC.setRole("client");
+      tab = "";
+      ACC.refresh();
+    }
+    render();
+  });
+
+  document.addEventListener("aa:logout", () => {
+    ACC.remove("aa_profile");
+    ACC.setRole("visitor");
+    tab = "";
+    ACC.refresh();
+    render();
+  });
 
   function render() {
     role = ACC.role();
@@ -287,6 +344,14 @@ document.addEventListener("DOMContentLoaded", () => {
     if (event.target.closest("#skill-add")) { addSkill(); return; }
     const rm = event.target.closest("[data-skill-remove]");
     if (rm) { skillsDraft.splice(Number(rm.dataset.skillRemove), 1); $("skill-list").innerHTML = skillChips(); $("skill-msg").textContent = ""; return; }
+    const wd = event.target.closest("[data-app-withdraw]");
+    if (wd) {
+      if (!window.confirm(AA.t("ac.apps.withdraw.confirm"))) return;
+      ACC.removeApplication(wd.dataset.appWithdraw);
+      render();
+      AA.toast(AA.t("ac.apps.withdrawn"));
+      return;
+    }
     const plus = event.target.closest("[data-plus]");
     const minus = event.target.closest("[data-minus]");
     const remove = event.target.closest("[data-remove]");
@@ -346,7 +411,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if (!event.target.closest("#clear-data")) return;
     if (!window.confirm(AA.t("ac.clear.confirm"))) return;
-    ["aa_favs", "aa_cart", "aa_orders", "aa_requests", "aa_passports", "aa_profile", ACC.KEYS.client, ACC.KEYS.job].forEach((k) => ACC.remove(k));
+    ["aa_favs", "aa_cart", "aa_orders", "aa_requests", "aa_passports", "aa_profile", ACC.KEYS.client, ACC.KEYS.job, ACC.KEYS.apps].forEach((k) => ACC.remove(k));
     ACC.clearRole();
     const acc = ACC.account();
     if (acc && acc.type !== "coop") ACC.remove(ACC.KEYS.account); // the cooperative account is kept: its dashboard content is not touched

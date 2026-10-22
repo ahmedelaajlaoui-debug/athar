@@ -1,7 +1,8 @@
 /* ==========================================================
    cooperative.js — cooperative dashboard (Account Phase 2, FRONTEND DEMO ONLY)
    - profile, products and job ads of ONE demo cooperative, kept in this browser's localStorage
-   - the "current cooperative" is the Phase 1 demo account (aa_demo_account, type "coop"). No password, no real login.
+   - the "current cooperative" is the cooperative demo account (aa_coop_account, or aa_demo_account of type "coop" in older browsers). No password, no real login.
+   - the dashboard is shown only for the demo role "Cooperative" (a display rule, not security): other roles get a notice with a switch button.
    - every list only shows items whose ownerId equals the current cooperative, and every change re-checks it.
      This is a DISPLAY rule for the normal interface, NOT a security permission: anyone can edit localStorage by hand.
    - products land in aa_coop_products and are merged into AA.products by coop-data.js (so boutique.html shows them);
@@ -32,6 +33,10 @@ document.addEventListener("DOMContentLoaded", () => {
   const myProducts = () => A.rawProducts().filter(isMine).sort((a, b) => String(b.updated || b.created).localeCompare(String(a.updated || a.created)));
   const myJobs = () => A.rawJobs().filter(isMine).sort((a, b) => String(b.updated || b.created).localeCompare(String(a.updated || a.created)));
   const WA_OK = (raw) => { const w = raw.replace(/[\s.\-()]/g, ""); return /^\+[1-9]\d{7,14}$/.test(w) || /^0[5-7]\d{8}$/.test(w); };
+
+  /* the same cooperative cannot keep two products (or two job ads) with the same name: avoids accidental duplicates */
+  const norm = (t) => String(t || "").replace(/\s+/g, " ").trim().toLowerCase();
+  const sameName = (list, text, field) => list.some((x) => norm(x[field]) === norm(text));
 
   function profileComplete() {
     return Boolean(profile && profile.name && profile.name.length >= 3 && AA.isEmail(profile.email || "") && WA_OK(profile.whatsapp || "") &&
@@ -94,8 +99,24 @@ document.addEventListener("DOMContentLoaded", () => {
   }
   const failSave = () => AA.toast(AA.t("co.err.save"), true);
 
-  /* ---------- Gate (no cooperative account) ---------- */
+  /* ---------- Gate (no cooperative account, or another demo role is active) ---------- */
   function renderGate() {
+    if (A.account() && AA.account.role() !== "coop") {
+      // a cooperative exists in this browser, but the interface currently shows another role: nothing is deleted
+      const roleName = AA.account.roleLabel(AA.account.role());
+      gate.innerHTML = `
+        <div class="empty-state">
+          <span class="icon-lg">${AA.icon("store")}</span>
+          <h3>${AA.esc(AA.t("co.rolegate.t", { role: roleName }))}</h3>
+          <p>${AA.esc(AA.t("co.rolegate.x"))}</p>
+          <div class="confirmation__actions">
+            <button class="btn btn--primary" type="button" id="co-switch">${AA.icon("store")}${AA.esc(AA.t("co.rolegate.btn"))}</button>
+            <a class="btn btn--outline" href="index.html">${AA.esc(AA.t("acc.menu.home"))}</a>
+          </div>
+        </div>`;
+      $("co-switch").addEventListener("click", () => { AA.account.setRole("coop"); AA.account.refresh(); init(); });
+      return;
+    }
     gate.innerHTML = `
       <div class="empty-state">
         <span class="icon-lg">${AA.icon("store")}</span>
@@ -111,8 +132,8 @@ document.addEventListener("DOMContentLoaded", () => {
   function startDemoCoop() {
     const created = now();
     const account = { type: "coop", name: AA.t("co.demo.name"), email: "", created, demo: true, coopId: A.uid("c") };
-    AA.store.set(K.account, account);
-    AA.account.clearRole(); // show the cooperative role in the menus (Account Phase 3)
+    A.saveAccount(account);          // kept apart from a customer / job-seeker demo account, if there is one
+    AA.account.setRole("coop");      // show the cooperative role in the menus
     AA.account.refresh();
     init();
   }
@@ -123,13 +144,13 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!acc) return false;
     if (!acc.coopId) { // first visit after a Phase 1 registration: keep a stable id even if the name or email change later
       acc.coopId = A.currentId();
-      AA.store.set(K.account, acc);
+      A.saveAccount(acc);
     }
     coopId = acc.coopId;
     const all = A.coops();
     profile = all[coopId];
     if (!profile) {
-      profile = { id: coopId, name: acc.name || "", email: acc.email || "", whatsapp: "", region: A.REGION_IDS.includes(acc.city) ? acc.city : "", category: acc.category || "", description: "", logo: "", demo: true, updated: now() };
+      profile = { id: coopId, name: acc.name || "", email: acc.email || "", whatsapp: "", region: A.REGION_IDS.includes(acc.city) ? acc.city : "", category: acc.category || "", description: acc.description || "", logo: "", demo: true, updated: now() };
       all[coopId] = profile;
       A.write(K.coops, all);
     }
@@ -150,6 +171,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (profileComplete()) { inc.hidden = true; inc.innerHTML = ""; }
     else { inc.hidden = false; inc.innerHTML = `${AA.icon("alert")}<span>${AA.esc(AA.t("co.incomplete"))}</span>`; }
     $("pr-shop-link").href = `boutique.html?q=${encodeURIComponent(profile.name || "")}`;
+    $("cp-public-link").href = `patrimoine.html?coop=${encodeURIComponent(coopId)}#cooperative`;
   }
 
   /* ---------- Tabs ---------- */
@@ -185,6 +207,7 @@ document.addEventListener("DOMContentLoaded", () => {
     f.elements.region.value = profile.region || "";
     f.elements.category.value = profile.category || "";
     f.elements.description.value = profile.description || "";
+    f.elements.publicContact.checked = profile.publicContact === true;
     pending.logo = undefined;
     setPreview("logo", profile.logo || "");
     updateCount();
@@ -216,6 +239,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const updated = {
       ...all[coopId], id: coopId, name: val(f, "name"), email: val(f, "email"), whatsapp: val(f, "whatsapp"),
       region: val(f, "region"), category: val(f, "category"), description: val(f, "description"),
+      publicContact: f.elements.publicContact.checked,
       logo: pending.logo === undefined ? (all[coopId].logo || "") : pending.logo, demo: true, updated: now(),
     };
     all[coopId] = updated;
@@ -223,7 +247,7 @@ document.addEventListener("DOMContentLoaded", () => {
     profile = updated;
     // keep the Phase 1 demo account in step (non-sensitive details only — never a password, never an image)
     const acc = A.account();
-    if (acc) AA.store.set(K.account, { ...acc, name: updated.name, email: updated.email, city: updated.region, category: updated.category });
+    if (acc) A.saveAccount({ ...acc, name: updated.name, email: updated.email, city: updated.region, category: updated.category });
     AA.store.set("aa_profile", { ...AA.store.get("aa_profile", {}), name: updated.name, email: updated.email });
     A.mergeProducts();
     pending.logo = undefined;
@@ -321,6 +345,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!price) e("price", "ins.err.required");
     else { const n = Number(price.replace(",", ".")); if (!Number.isFinite(n) || n <= 0 || n > 100000) e("price", "co.pr.err.price"); }
     if (stock !== "" && !/^\d{1,3}$/.test(stock)) e("stock", "co.pr.err.stock");
+    if (name && sameName(myProducts().filter((p) => p.id !== edit.product), name, "name")) e("name", "co.pr.err.dup");
     return errors;
   }
 
@@ -403,6 +428,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!A.JOB_CATS.includes(val(f, "cat"))) e("cat", "ins.err.required");
     if (!A.REGION_IDS.includes(val(f, "region"))) e("region", "ins.err.required");
     if (f.elements.showContact.checked && !(profile.email && profile.whatsapp)) e("showContact", "co.j.err.nocontact");
+    if (title && sameName(myJobs().filter((j) => j.id !== edit.job), title, "title")) e("title", "co.j.err.dup");
     return errors;
   }
   forms.job.addEventListener("submit", (event) => {
@@ -462,8 +488,10 @@ document.addEventListener("DOMContentLoaded", () => {
     const ok = A.write(K.coops, coops) && A.write(K.products, A.rawProducts().filter((p) => !isMine(p))) && A.write(K.jobs, A.rawJobs().filter((j) => !isMine(j)));
     if (!ok) return failSave();
     purgeLocal(mine);
-    try { localStorage.removeItem(K.account); } catch (e) { /* ignore */ }
+    A.clearAccount();
+    if (AA.account.read(AA.account.KEYS.role, null) === "coop") AA.account.clearRole();
     A.mergeProducts();
+    AA.account.refresh();
     AA.toast(AA.t("co.reset.done"));
     init();
   });
@@ -482,7 +510,7 @@ document.addEventListener("DOMContentLoaded", () => {
   function init() {
     Object.keys(edit).forEach((k) => { edit[k] = null; confirmDel[k] = null; });
     Object.keys(forms).forEach((k) => { if (k !== "profile") forms[k].hidden = true; });
-    if (!load()) { app.hidden = true; gate.hidden = false; renderGate(); AA.hydrateIcons(); return; }
+    if (AA.account.role() !== "coop" || !load()) { coopId = null; profile = null; app.hidden = true; gate.hidden = false; renderGate(); AA.hydrateIcons(); return; }
     gate.hidden = true; app.hidden = false;
     fillSelects();
     renderAll(true);
