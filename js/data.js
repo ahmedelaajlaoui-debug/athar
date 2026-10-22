@@ -85,7 +85,7 @@ AA.motifs = [
 
 /* ---------- Produits (source : fichier Excel + dossier Products) ---------- */
 AA.products = [
-  { id: "p1", ref: "P003", name: "Lait de chamelle", cat: "Lait", price: null, priceFrom: false, artisan: "c001", city: "Dakhla", coop: "HALIB DAKHLA", verified: true, pop: 100, desc: "Lait de chamelle — produit de la coopérative HALIB DAKHLA (Dakhla).", stock: 10, images: ["assets/images/products/halib-dakhla-lait-de-chamelle.jpg"], image: "assets/images/products/halib-dakhla-lait-de-chamelle.jpg", videoUrl: "assets/videos/p1.mp4" },
+  { id: "p1", ref: "P003", name: "Lait de chamelle", cat: "Lait", price: 5, priceFrom: false, artisan: "c001", city: "Dakhla", coop: "HALIB DAKHLA", verified: true, pop: 100, desc: "Lait de chamelle — produit de la coopérative HALIB DAKHLA (Dakhla).", stock: 10, images: ["assets/images/products/halib-dakhla-lait-de-chamelle.jpg"], image: "assets/images/products/halib-dakhla-lait-de-chamelle.jpg", videoUrl: "assets/videos/p1.mp4" },
   { id: "p2", ref: "P010", name: "Lḥamis (viande conservée)", cat: "Épicerie", price: 40, priceFrom: true, artisan: "c010", city: "Smara", coop: "AHL AL JID", verified: true, pop: 99, desc: "Lḥamis (viande conservée) — produit de la coopérative AHL AL JID (Smara).", stock: 10, images: ["assets/images/products/ahl-al-jid-lahmis.jpg"], image: "assets/images/products/ahl-al-jid-lahmis.jpg", videoUrl: "assets/videos/p2.mp4" },
   { id: "p3", ref: "P011", name: "Savon", cat: "Cosmétique", price: 50, priceFrom: true, artisan: "c010", city: "Smara", coop: "AHL AL JID", verified: true, pop: 98, desc: "Savon — produit de la coopérative AHL AL JID (Smara).", stock: 10, images: ["assets/images/products/ahl-al-jid-savon.jpg"], image: "assets/images/products/ahl-al-jid-savon.jpg", videoUrl: "assets/videos/p3.mp4" },
   { id: "p4", ref: "P012", name: "Tidkit (mélange d'épices et d'herbes)", cat: "Épicerie", price: 100, priceFrom: true, artisan: "c010", city: "Smara", coop: "AHL AL JID", verified: true, pop: 97, desc: "Tidkit (mélange d'épices et d'herbes) — produit de la coopérative AHL AL JID (Smara).", stock: 10, images: ["assets/images/products/ahl-al-jid-tidkit.jpg"], image: "assets/images/products/ahl-al-jid-tidkit.jpg", videoUrl: "assets/videos/p4.mp4" },
@@ -120,12 +120,10 @@ AA.passportStory = (p) =>
 
 /* ---------- Experiences ---------- */
 AA.experiences = [
-  { id: "e1", title: "Visite d'atelier d'argenterie", type: "Visite", city: "Laâyoune", duration: "2 heures", price: 150, photo: AA.photos.workshop, desc: "Découvrez comment un bijou prend forme, du métal brut à la pièce finie." },
-  { id: "e2", title: "Initiation à la ciselure", type: "Atelier", city: "Laâyoune", duration: "3 heures", price: 350, photo: AA.photos.dunes, desc: "Réalisez votre propre petit pendentif sous la guidance d'un artisan." },
-  { id: "e3", title: "Atelier de tissage", type: "Atelier", city: "Dakhla", duration: "2 heures", price: 280, photo: AA.photos.heritage, desc: "Essayez le métier à tisser et comprenez le travail de la laine." },
-  { id: "e4", title: "Visite d'une coopérative de cuir", type: "Visite", city: "Smara", duration: "1 h 30", price: 120, photo: AA.photos.market, desc: "Rencontrez l'équipe et observez les étapes de fabrication du cuir." },
-  { id: "e5", title: "Cérémonie du thé sahraoui", type: "Culture", city: "Dakhla", duration: "1 h 30", price: 180, photo: AA.photos.desert, desc: "Un moment de partage autour du thé, avec histoires et musique locale." },
-  { id: "e6", title: "Soirée contes et bakhour", type: "Culture", city: "Boujdour", duration: "2 heures", price: 200, photo: AA.photos.coast, desc: "Contes du désert et découverte des encens traditionnels." },
+  { id: "e1", title: "Soirée musique hassanie", type: "Culture", city: "Laâyoune", duration: "2 heures", price: 200, photo: "assets/images/ateliers/Hassanimusique.jpg", desc: "Écoutez les rythmes du Sahara, joués au tambour autour du feu, sous les étoiles." },
+  { id: "e2", title: "Atelier du khlii", type: "Atelier", city: "Smara", duration: "2 heures", price: 250, photo: "assets/images/ateliers/Khlii.jpg", desc: "Découvrez la préparation du khlii, viande conservée selon la tradition du Sahara." },
+  { id: "e3", title: "Atelier du lait", type: "Atelier", city: "Dakhla", duration: "1 h 30", price: 150, photo: "assets/images/ateliers/Lait.jpg", desc: "Découvrez le lait frais et sa transformation artisanale avec une coopérative." },
+  { id: "e4", title: "Cérémonie du thé sahraoui", type: "Culture", city: "Dakhla", duration: "1 h 30", price: 180, photo: "assets/images/ateliers/The.jpg", desc: "Un moment de partage autour du thé, avec histoires et musique locale." },
 ];
 
 

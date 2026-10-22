@@ -485,7 +485,10 @@ AA.fieldError = (input, message) => {
 AA.applyBackgrounds = (root = document) => {
   root.querySelectorAll("[data-bg]").forEach((el) => {
     const url = AA.photos[el.dataset.bg] || el.dataset.bg;
-    el.style.setProperty("--bg", `url("${url}")`);
+    const abs = (u) => new URL(u, document.baseURI).href;
+    // Une vraie photo (même nom en .jpg) passe devant l'illustration .svg si elle existe
+    const layers = /\.svg$/.test(url) ? [url.replace(/\.svg$/, ".jpg"), url] : [url];
+    el.style.setProperty("--bg", layers.map((u) => `url("${abs(u)}")`).join(", "));
   });
 };
 

@@ -7,7 +7,7 @@
 (() => {
   const T = {
     /* ----- Shared labels ----- */
-    "dir.badge.demo": ["Fiche de démonstration", "Demo listing", "بطاقة تجريبية"],
+    "dir.badge.demo": ["Coopérative", "Cooperative", "تعاونية"],
     "dir.badge.registered": ["Coopérative inscrite (démo)", "Registered cooperative (demo)", "تعاونية مسجلة (تجريبي)"],
     "dir.notverified": ["Non vérifiée", "Not verified", "غير موثقة"],
     "dir.view": ["Voir la fiche", "View profile", "عرض الملف"],
@@ -18,9 +18,9 @@
     "dir.count.many": ["{n} coopératives", "{n} cooperatives", "{n} تعاونية"],
     "dir.count.none": ["Aucune coopérative", "No cooperative", "لا توجد تعاونية"],
     "dir.demo.desc": [
-      "Fiche illustrative d'une structure artisanale de démonstration à {city}, autour de : {craft}. Elle ne correspond pas à une coopérative réelle vérifiée.",
-      "Illustrative listing of a demo craft organisation in {city}, around: {craft}. It does not correspond to a verified real-world cooperative.",
-      "بطاقة توضيحية لهيكل حرفي تجريبي في {city}، حول: {craft}. لا تمثل تعاونية حقيقية موثقة."],
+      "Coopérative spécialisée dans : {craft}.",
+      "Cooperative specialised in: {craft}.",
+      "تعاونية متخصصة في: {craft}."],
     "dir.other": ["Autre activité", "Other activity", "نشاط آخر"],
 
     /* ----- Explorer: city panel ----- */

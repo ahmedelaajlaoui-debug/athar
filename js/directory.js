@@ -43,7 +43,7 @@
     return [...map.values()].map((c) => ({
       ...c,
       category: c.categories[0],
-      logo: "",
+      logo: (c.artisans[0] && c.artisans[0].photo) || "",
       photo: (photos()[c.categories[0]] || [])[0] || AA.photos.workshop,
       contact: null,
       products: AA.products.filter((p) => !p.demoCoop && p.coop === c.name),
@@ -86,7 +86,7 @@
     plural: (key, n) => (n === 0 ? AA.t("dir.count.none") : AA.plural(key, n)),
 
     /* Logo or photo of a listing (a registered cooperative's own logo wins) */
-    image(c) { return c.logo ? AA.img(c.logo, c.name, "") : AA.img(c.photo, c.name, c.category === "other" ? "" : c.category); },
+    image(c) { return c.logo ? AA.img(c.logo, c.name, "").replace("<img ", '<img class="is-logo" ') : AA.img(c.photo, c.name, c.category === "other" ? "" : c.category); },
 
     card(c, { compact = false } = {}) {
       const url = dir.url(c.id);

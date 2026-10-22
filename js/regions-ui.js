@@ -28,7 +28,7 @@ AA.REGION_THEMES = {
 };
 
 /* Card / header illustration: gradient + faint star lattice + the city's line icon */
-AA.regionArt = (region, uid = "a") => {
+AA.regionIllustration = (region, uid = "a") => {
   const [c1, c2] = AA.REGION_THEMES[region.theme] || AA.REGION_THEMES.desert;
   const gold = "#e9c58a";
   const gid = `rg-${region.id}-${uid}`;
@@ -46,6 +46,14 @@ AA.regionArt = (region, uid = "a") => {
     <g transform="translate(152 92) scale(4)" fill="none" stroke="${gold}" stroke-width="1.35" stroke-linecap="round" stroke-linejoin="round">${iconBody}</g>
     <path d="M0 262q50-26 100 0t100 0 100 0 100 0v38H0z" fill="${c2}" opacity=".55"/>
   </svg>`;
+};
+
+/* Photo of the city (assets/images/cities/<id>.jpg); falls back to the themed cover illustration */
+AA.REGION_COVER = { desert: "desert", coast: "coast", oasis: "heritage" };
+AA.regionPhoto = (region) => `assets/images/cities/${region.id}.jpg`;
+AA.regionArt = (region) => {
+  const cover = `assets/images/covers/${AA.REGION_COVER[region.theme] || "desert"}.svg`;
+  return `<img src="${AA.regionPhoto(region)}" alt="${AA.esc(AA.rt(region.name))}" loading="lazy" onerror="this.onerror=null;this.src='${cover}'" style="width:100%;height:100%;object-fit:cover;object-position:center 60%;display:block">`;
 };
 
 /* Illustrated map of the Moroccan Sahara: Atlantic coastline + desert land, nothing else.

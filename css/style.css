@@ -1652,3 +1652,6 @@ body[data-page="cooperative"] .co-head, .coop-profile__head { box-shadow: var(--
   .reviews-sort { width: 100%; }
   .reviews-sort select { flex: 1; min-width: 0; }
 }
+
+/* Cooperative logos: show the whole logo (no cropping) */
+.coop-card__img img.is-logo, .coop-mini__img img.is-logo, .coop-profile__logo img.is-logo { object-fit: contain; background: #fff; padding: 6px; box-sizing: border-box; }
